@@ -8,7 +8,6 @@
 
   <style>
     body { font-family: Arial; background:#ccc; }
-
     .container { width: 900px; margin: auto; }
 
     .invoice-box {
@@ -25,7 +24,6 @@
     th, td { padding: 6px; font-size: 12px; }
 
     input { padding: 6px; margin: 4px; }
-
     button { padding: 8px 12px; margin: 5px; }
 
     .no-border td { border: none; }
@@ -36,11 +34,6 @@
       margin: 0;
       letter-spacing: 2px;
     }
-
-    @page {
-      size: A4;
-      margin: 10mm;
-    }
   </style>
 </head>
 
@@ -50,7 +43,7 @@
 
 <h2>Lotus Billing Software</h2>
 
-<!-- INPUTS -->
+<!-- INPUT -->
 <input id="name" placeholder="Customer Name">
 <input id="address" placeholder="Address">
 <input id="gst" placeholder="GSTIN"><br>
@@ -63,6 +56,7 @@
 
 <button onclick="addRow()">➕ Add Item</button>
 <button onclick="generateInvoice()">📄 Generate PDF</button>
+<button onclick="loadInvoices()">📂 History</button>
 
 <!-- ITEM TABLE -->
 <table id="itemTable">
@@ -74,6 +68,8 @@
   <th>Amount</th>
 </tr>
 </table>
+
+<div id="history"></div>
 
 <hr>
 
@@ -102,8 +98,8 @@
         </div>
 
         <div style="font-size:11px;">
-          # Flat No. 91, Kachohalli Main Road, Nearby Saibaba Temple, Annapoorneshwari Industrial Estate,<br>
-          Machohalli Village, Bangalore - 560 091.
+          # Flat No. 91, Kachohalli Main Road, Nearby Saibaba Temple,<br>
+          Annapoorneshwari Industrial Estate, Machohalli Village, Bangalore - 560 091.
         </div>
 
         <div style="font-size:11px;">
@@ -178,12 +174,30 @@
 
 </div>
 
+<!-- 🔥 FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.db = db;
+window.addDoc = addDoc;
+window.collection = collection;
+window.getDocs = getDocs;
+</script>
+
 <script>
 
 function addRow() {
-  let table = document.getElementById("itemTable");
-  let row = table.insertRow();
-
+  let row = document.getElementById("itemTable").insertRow();
   row.innerHTML = `
     <td><input></td>
     <td><input></td>
@@ -209,19 +223,16 @@ function numberToWords(num) {
 
 document.getElementById("signUpload").onchange = function () {
   let reader = new FileReader();
-  reader.onload = function (e) {
-    document.getElementById("signImg").src = e.target.result;
-  };
+  reader.onload = e => document.getElementById("signImg").src = e.target.result;
   reader.readAsDataURL(this.files[0]);
 };
 
-function generateInvoice() {
+async function generateInvoice() {
 
-  let nameVal = document.getElementById("name").value;
-  let addressVal = document.getElementById("address").value;
-  let gstVal = document.getElementById("gst").value;
-
-  let invManual = document.getElementById("invoiceNoInput").value;
+  let nameVal = name.value;
+  let addressVal = address.value;
+  let gstVal = gst.value;
+  let invManual = invoiceNoInput.value;
 
   document.getElementById("custName").innerText = nameVal || "";
   document.getElementById("custAddress").innerText = addressVal || "";
@@ -235,12 +246,7 @@ function generateInvoice() {
 
   let rows = document.querySelectorAll("#itemTable tr");
   let printTable = document.getElementById("printItems");
-
-  printTable.innerHTML = `
-  <tr>
-    <th>Sl</th><th>Description</th><th>HSN</th>
-    <th>Qty</th><th>Rate</th><th>Amount</th>
-  </tr>`;
+  printTable.innerHTML = printTable.rows[0].outerHTML;
 
   let total = 0;
 
@@ -273,21 +279,39 @@ function generateInvoice() {
   let sgst = total * 0.09;
   let grand = total + cgst + sgst;
 
-  document.getElementById("sub").innerText = "₹ " + total;
-  document.getElementById("cg").innerText = "₹ " + cgst.toFixed(2);
-  document.getElementById("sg").innerText = "₹ " + sgst.toFixed(2);
-  document.getElementById("tot").innerText = "₹ " + grand.toFixed(2);
+  sub.innerText = "₹ " + total;
+  cg.innerText = "₹ " + cgst.toFixed(2);
+  sg.innerText = "₹ " + sgst.toFixed(2);
+  tot.innerText = "₹ " + grand.toFixed(2);
 
-  document.getElementById("words").innerText =
-    numberToWords(Math.floor(grand)).toUpperCase() + " ONLY";
+  words.innerText = numberToWords(Math.floor(grand)).toUpperCase() + " ONLY";
 
-  html2canvas(document.getElementById("invoice")).then(canvas => {
+  await addDoc(collection(db, "invoices"), {
+    customer: nameVal,
+    invoiceNo: invManual,
+    total: grand,
+    date: new Date().toISOString()
+  });
+
+  html2canvas(invoice).then(canvas => {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p','mm','a4');
-
     pdf.addImage(canvas.toDataURL("image/png"), 'PNG', 0, 0, 210, 297);
     pdf.save("invoice.pdf");
   });
+}
+
+async function loadInvoices() {
+  const querySnapshot = await getDocs(collection(db, "invoices"));
+
+  let html = "";
+
+  querySnapshot.forEach(doc => {
+    let data = doc.data();
+    html += `<div>${data.invoiceNo} | ${data.customer} | ₹${data.total}</div>`;
+  });
+
+  history.innerHTML = html;
 }
 </script>
 
