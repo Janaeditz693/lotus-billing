@@ -11,12 +11,7 @@
         @media print {
             .no-print { display: none !important; }
             body { background: white; margin: 0; padding: 0; }
-            .a4-page { 
-                box-shadow: none !important; 
-                margin: 0 !important; 
-                border: none !important;
-                width: 100%;
-            }
+            .a4-page { box-shadow: none !important; margin: 0 !important; border: none !important; width: 100%; }
         }
         .a4-page { width: 210mm; min-height: 297mm; }
     </style>
@@ -26,110 +21,121 @@
     <div class="no-print w-full md:w-96 bg-slate-900 text-white p-6 overflow-y-auto h-screen sticky top-0 shadow-xl">
         <h2 class="text-xl font-bold border-b border-slate-700 pb-4 mb-6">Invoice Editor</h2>
         
-        <div class="mb-6">
-            <label class="block text-xs uppercase text-slate-400 mb-2">Document Type</label>
-            <select onchange="updateHeader(this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white">
+        <div class="mb-4">
+            <label class="block text-[10px] uppercase text-slate-400 mb-1">Document Type</label>
+            <select onchange="updateHeader(this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
                 <option value="TAX INVOICE">Tax Invoice</option>
                 <option value="DELIVERY CHALLAN">Delivery Challan</option>
             </select>
         </div>
 
-        <div class="space-y-4 mb-8">
-            <label class="block text-xs uppercase text-slate-400">Receiver Details</label>
-            <input type="text" id="edit-name" placeholder="M/s Name" oninput="syncText('party-name', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-            <textarea id="edit-address" placeholder="Address" oninput="syncText('party-address', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm h-20"></textarea>
-            <input type="text" id="edit-gst" placeholder="Party GSTIN" oninput="syncText('party-gst', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-        </div>
-
-        <div class="border-t border-slate-700 pt-6">
-            <label class="block text-xs uppercase text-slate-400 mb-4">Add Item</label>
-            <div class="space-y-2">
-                <input type="text" id="item-desc" placeholder="Description" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" id="item-qty" placeholder="Qty" class="bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-                    <input type="number" id="item-rate" placeholder="Rate" class="bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-                </div>
-                <button onclick="addItem()" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-2 rounded transition">Add to Invoice</button>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+            <div>
+                <label class="block text-[10px] uppercase text-slate-400 mb-1">Invoice No</label>
+                <input type="text" oninput="syncText('inv-no', this.value)" placeholder="354" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase text-slate-400 mb-1">Date</label>
+                <input type="text" oninput="syncText('inv-date', this.value)" placeholder="23/12/25" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase text-slate-400 mb-1">Vehicle No</label>
+                <input type="text" oninput="syncText('inv-veh', this.value)" placeholder="KA.05..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase text-slate-400 mb-1">E-Way Bill</label>
+                <input type="text" oninput="syncText('inv-eway', this.value)" placeholder="1722..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
             </div>
         </div>
 
-        <button onclick="window.print()" class="w-full mt-10 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
+        <div class="space-y-3 mb-6">
+            <label class="block text-[10px] uppercase text-slate-400">Receiver Details</label>
+            <input type="text" placeholder="M/s Name" oninput="syncText('party-name', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+            <textarea placeholder="Address" oninput="syncText('party-address', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm h-20"></textarea>
+            <input type="text" placeholder="Party GSTIN" oninput="syncText('party-gst', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+        </div>
+
+        <div class="border-t border-slate-700 pt-4">
+            <label class="block text-[10px] uppercase text-slate-400 mb-2">Add Item</label>
+            <input type="text" id="item-desc" placeholder="Description" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm mb-2">
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <input type="number" id="item-qty" placeholder="Qty" class="bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+                <input type="number" id="item-rate" placeholder="Rate" class="bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+            </div>
+            <button onclick="addItem()" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-2 rounded transition">Add to Invoice</button>
+        </div>
+
+        <button onclick="window.print()" class="w-full mt-6 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded flex items-center justify-center gap-2">
             Print A4 Document
         </button>
     </div>
 
     <div class="flex-1 flex justify-center p-4 overflow-y-auto">
-        <div class="a4-page bg-white p-[15mm] shadow-2xl relative border border-gray-300">
-            
-            <div class="flex justify-between items-start mb-6">
+        <div class="a4-page bg-white p-[15mm] shadow-2xl border border-gray-300">
+            <div class="flex justify-between items-start mb-4">
                 <div>
                     <h1 id="doc-title" class="text-3xl font-black text-blue-800 uppercase italic">TAX INVOICE</h1>
                     <p class="text-sm font-bold mt-1">GSTIN: 29AADFL1359E1ZE</p>
                 </div>
                 <div class="text-right">
                     <h2 class="text-2xl font-bold text-blue-900">LOTUS ENGINEERING</h2>
-                    <p class="text-[10px] text-gray-600 leading-tight">Manufacture of: Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>Kitchen Fume exhaust Systems & General Fabricator</p>
+                    <p class="text-[9px] text-gray-600 leading-tight">Manufacture of: Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>Kitchen Fume exhaust Systems & General Fabricator</p>
                 </div>
             </div>
 
-            <div class="text-[10px] flex justify-between border-b border-black pb-4 mb-4">
-                <p># Flat No. 91, Kachohalli Main Road, Nearby Saibaba Temple,<br>Annapoorneshwari Industrial Estate, Machohalli Village, Bangalore - 560 091.</p>
-                <p class="text-right font-semibold">Email: lotusengineering04@gmail.com<br>Mobile: +91 98802 66497</p>
+            <div class="text-[10px] flex justify-between border-b border-black pb-2 mb-4">
+                <p># Flat No. 91, Kachohalli Main Road, Nearby Saibaba Temple, Machohalli Village, Bangalore - 560 091.</p>
+                <p class="text-right">Email: lotusengineering04@gmail.com | Mob: +91 98802 66497</p>
             </div>
 
-            <div class="grid grid-cols-2 border border-black mb-6">
-                <div class="p-3 border-r border-black">
-                    <p class="font-bold underline text-xs mb-2">Details of Receiver (Billed to):</p>
-                    <div id="party-name" class="font-bold uppercase text-sm">M/s AQUATION</div>
-                    <div id="party-address" class="text-xs whitespace-pre-line">No 8. Murneshware Layout,
-                    Indiranagar Post, Bangalore - 38</div>
-                    <p class="mt-2 text-xs font-bold">Party's GSTIN: <span id="party-gst" class="font-mono">29DVEPP3918N1ZU</span></p>
+            <div class="grid grid-cols-2 border border-black mb-4 text-xs">
+                <div class="p-2 border-r border-black">
+                    <p class="font-bold underline mb-1">Details of Receiver:</p>
+                    <div id="party-name" class="font-bold uppercase">M/S. AEQUS CONSUMER PRODUCTS</div>
+                    <div id="party-address" class="whitespace-pre-line">...</div>
+                    <p class="mt-2 font-bold">Party's GSTIN: <span id="party-gst">...</span></p>
                 </div>
-                <div class="text-xs">
-                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold">Invoice No:</span><span>354</span></div>
-                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold">Date:</span><span>23/12/25</span></div>
-                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold">Vehicle No:</span><span>KA.05.AL.0035</span></div>
-                    <div class="grid grid-cols-2 p-1"><span class="font-bold">E-Way Bill:</span><span>1722 9899 9446</span></div>
+                <div>
+                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Invoice No:</span><span id="inv-no">354</span></div>
+                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Date:</span><span id="inv-date">23/12/25</span></div>
+                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Vehicle No:</span><span id="inv-veh">KA.05.AL.0035</span></div>
+                    <div class="grid grid-cols-2 p-1"><span class="font-bold pl-1">E-Way Bill:</span><span id="inv-eway">1722 9899 9446</span></div>
                 </div>
             </div>
 
-            <table class="w-full border-collapse border border-black text-xs text-left mb-4">
-                <thead class="bg-gray-50">
+            <table class="w-full border-collapse border border-black text-[11px] mb-4">
+                <thead class="bg-gray-50 uppercase">
                     <tr>
-                        <th class="border border-black p-2 w-10 text-center">Sl.</th>
-                        <th class="border border-black p-2">Description of Goods</th>
-                        <th class="border border-black p-2 w-16 text-center">HSN</th>
-                        <th class="border border-black p-2 w-16 text-center">Qty</th>
-                        <th class="border border-black p-2 w-24 text-right">Rate</th>
-                        <th class="border border-black p-2 w-24 text-right">Amount</th>
-                        <th class="border border-black p-2 w-10 no-print text-center"></th>
+                        <th class="border border-black p-1 w-8">Sl.</th>
+                        <th class="border border-black p-1">Description of Goods</th>
+                        <th class="border border-black p-1 w-12 text-center">HSN</th>
+                        <th class="border border-black p-1 w-12 text-center">Qty</th>
+                        <th class="border border-black p-1 w-20 text-right">Rate</th>
+                        <th class="border border-black p-1 w-24 text-right">Amount</th>
+                        <th class="no-print border border-black w-8"></th>
                     </tr>
                 </thead>
-                <tbody id="items-body">
-                    </tbody>
+                <tbody id="items-body"></tbody>
             </table>
 
             <div class="flex justify-between items-start mt-4">
                 <div class="w-1/2">
-                    <p class="text-[10px] font-bold">Total in Words:</p>
-                    <p id="total-words" class="italic text-xs border-b border-gray-400 font-semibold pt-1">Zero Rupees Only</p>
+                    <p class="text-[9px] font-bold">Total in Words:</p>
+                    <p id="total-words" class="italic text-[11px] border-b border-gray-400 font-semibold pt-1">Zero Rupees Only</p>
                 </div>
                 <div class="w-1/3 text-xs font-semibold">
                     <div class="flex justify-between p-1"><span>Sub Total:</span><span id="sub-total">0.00</span></div>
                     <div class="flex justify-between p-1"><span>CGST (9%):</span><span id="cgst">0.00</span></div>
                     <div class="flex justify-between p-1"><span>SGST (9%):</span><span id="sgst">0.00</span></div>
-                    <div class="flex justify-between p-1 bg-gray-100 border-t border-black font-bold text-sm"><span>Grand Total:</span><span id="grand-total">0.00</span></div>
+                    <div class="flex justify-between p-1 bg-gray-100 border-y border-black font-bold"><span>Grand Total:</span><span id="grand-total">0.00</span></div>
                 </div>
             </div>
 
             <div class="mt-20 flex justify-between items-end">
-                <div class="w-48 border-t border-black text-center text-[10px] pt-1">Receiver's Signature</div>
+                <div class="w-40 border-t border-black text-center text-[9px] pt-1">Receiver's Signature</div>
                 <div class="text-center">
-                    <p class="text-[10px] mb-12">For <span class="font-bold">LOTUS ENGINEERING</span></p>
-                    <div class="w-48 border-t border-black text-center text-[10px] pt-1 uppercase">Authorised Signatory</div>
+                    <p class="text-[9px] mb-12 italic">For LOTUS ENGINEERING</p>
+                    <div class="w-48 border-t border-black text-center text-[10px] pt-1 font-bold">AUTHORISED SIGNATORY</div>
                 </div>
             </div>
         </div>
@@ -138,76 +144,73 @@
     <script>
         let items = [];
 
-        function syncText(id, val) {
-            document.getElementById(id).innerText = val || "...";
-        }
-
-        function updateHeader(val) {
-            document.getElementById('doc-title').innerText = val;
-        }
+        function syncText(id, val) { document.getElementById(id).innerText = val || "..."; }
+        function updateHeader(val) { document.getElementById('doc-title').innerText = val; }
 
         function addItem() {
             const desc = document.getElementById('item-desc').value;
             const qty = parseFloat(document.getElementById('item-qty').value) || 0;
             const rate = parseFloat(document.getElementById('item-rate').value) || 0;
-
-            if (desc && qty > 0 && rate > 0) {
+            if (desc && qty > 0) {
                 items.push({ desc, qty, rate, amount: qty * rate });
                 renderTable();
-                // Clear inputs
                 document.getElementById('item-desc').value = '';
-                document.getElementById('item-qty').value = '';
-                document.getElementById('item-rate').value = '';
             }
         }
 
-        function deleteItem(index) {
-            items.splice(index, 1);
-            renderTable();
-        }
+        function deleteItem(index) { items.splice(index, 1); renderTable(); }
 
         function renderTable() {
             const body = document.getElementById('items-body');
             body.innerHTML = '';
-            let subTotal = 0;
-
-            items.forEach((item, index) => {
-                subTotal += item.amount;
+            let sub = 0;
+            items.forEach((item, i) => {
+                sub += item.amount;
                 body.innerHTML += `
                     <tr>
-                        <td class="border border-black p-2 text-center">${index + 1}</td>
-                        <td class="border border-black p-2 font-semibold">${item.desc}</td>
-                        <td class="border border-black p-2 text-center italic">8414</td>
-                        <td class="border border-black p-2 text-center">${item.qty}</td>
-                        <td class="border border-black p-2 text-right">${item.rate.toFixed(2)}</td>
-                        <td class="border border-black p-2 text-right font-bold">${item.amount.toFixed(2)}</td>
-                        <td class="border border-black p-2 text-center no-print">
-                            <button onclick="deleteItem(${index})" class="text-red-500 font-bold hover:scale-125 transition">✕</button>
-                        </td>
-                    </tr>
-                `;
+                        <td class="border border-black p-1 text-center">${i+1}</td>
+                        <td class="border border-black p-1 uppercase font-semibold">${item.desc}</td>
+                        <td class="border border-black p-1 text-center">8414</td>
+                        <td class="border border-black p-1 text-center">${item.qty}</td>
+                        <td class="border border-black p-1 text-right">${item.rate.toFixed(2)}</td>
+                        <td class="border border-black p-1 text-right font-bold">${item.amount.toFixed(2)}</td>
+                        <td class="border border-black p-1 text-center no-print"><button onclick="deleteItem(${i})" class="text-red-500">✕</button></td>
+                    </tr>`;
             });
-
-            // Fill empty rows to maintain height
-            for (let i = items.length; i < 8; i++) {
-                body.innerHTML += `<tr class="h-8"><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="no-print border border-black"></td></tr>`;
-            }
-
-            calculate(subTotal);
-        }
-
-        function calculate(sub) {
+            for(let i=items.length; i<10; i++) body.innerHTML += `<tr class="h-6"><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="no-print border border-black"></td></tr>`;
+            
             const cgst = sub * 0.09;
             const sgst = sub * 0.09;
-            const grand = sub + cgst + sgst;
+            const total = sub + cgst + sgst;
 
             document.getElementById('sub-total').innerText = sub.toFixed(2);
             document.getElementById('cgst').innerText = cgst.toFixed(2);
             document.getElementById('sgst').innerText = sgst.toFixed(2);
-            document.getElementById('grand-total').innerText = grand.toFixed(2);
+            document.getElementById('grand-total').innerText = total.toFixed(2);
+            document.getElementById('total-words').innerText = numberToWords(Math.round(total)) + " Rupees Only";
         }
 
-        renderTable(); // Initialize with empty rows
+        function numberToWords(n) {
+            if (n === 0) return "Zero";
+            const a = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+            const b = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+            const g = (n, s) => {
+                let str = "";
+                if (n > 19) str += b[Math.floor(n/10)] + " " + a[n%10];
+                else str += a[n];
+                if (n > 0) str += " " + s + " ";
+                return str;
+            };
+            let out = "";
+            out += g(Math.floor(n/10000000), "Crore");
+            out += g(Math.floor((n/100000)%100), "Lakh");
+            out += g(Math.floor((n/1000)%100), "Thousand");
+            out += g(Math.floor((n/100)%10), "Hundred");
+            if (n > 100 && n % 100 > 0) out += "and ";
+            out += g(n%100, "");
+            return out.trim();
+        }
+        renderTable();
     </script>
 </body>
 </html>
