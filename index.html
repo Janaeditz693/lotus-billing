@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lotus Billing</title>
-
+  <title>Lotus Billing System</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
     body {
-      font-family: Arial;
       margin: 0;
+      font-family: Arial;
       background: #f4f6f9;
     }
 
@@ -24,8 +24,8 @@
     .card {
       background: white;
       padding: 15px;
-      margin-bottom: 10px;
       border-radius: 10px;
+      margin-bottom: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
@@ -39,11 +39,11 @@
 
     button {
       padding: 10px;
-      margin: 5px 5px 5px 0;
       border: none;
       border-radius: 6px;
       background: #007bff;
       color: white;
+      margin: 5px 5px 5px 0;
       cursor: pointer;
     }
 
@@ -69,13 +69,22 @@
     .invoice-box {
       width: 794px;
       min-height: 1123px;
+      margin: auto;
       background: white;
       padding: 20px;
-      margin: auto;
       border: 2px solid black;
     }
 
-    @media(max-width: 768px){
+    .flex {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    @media(max-width:768px){
       .invoice-box {
         width: 100%;
         transform: scale(0.9);
@@ -91,29 +100,22 @@
 
 <h2>🏭 Lotus Billing System</h2>
 
-<!-- CUSTOMER -->
+<!-- INPUT SECTION -->
 <div class="card">
-<select id="customerSelect" onchange="fillCustomer()"></select>
 
-<input id="name" placeholder="Customer Name">
+<input id="name" placeholder="Customer Name (M/s)">
 <input id="address" placeholder="Address">
 <input id="gst" placeholder="GSTIN">
 
-<input id="invoiceNoInput" placeholder="Invoice No">
-<input id="vehicle" placeholder="Vehicle No">
+<input id="invoiceNo" placeholder="Invoice Number">
+<input id="vehicle" placeholder="Vehicle Number">
 <input id="eway" placeholder="E-Way Bill">
-
-<select id="mode">
-  <option value="invoice">Tax Invoice</option>
-  <option value="challan">Delivery Challan</option>
-</select>
 
 <input type="file" id="signUpload">
 
 <button onclick="addRow()">➕ Add Item</button>
-<button onclick="generateInvoice()">📄 Generate</button>
-<button onclick="shareWhatsApp()">📤 WhatsApp</button>
-<button onclick="loadInvoices()">📂 History</button>
+<button onclick="generateInvoice()">📄 Generate Invoice</button>
+
 </div>
 
 <!-- ITEMS -->
@@ -128,23 +130,17 @@
 </table>
 </div>
 
-<!-- DASHBOARD -->
-<div class="card">
-<h3>📊 Dashboard</h3>
-<div id="dashboard"></div>
-</div>
-
-<div id="history" class="card"></div>
-
 <!-- INVOICE -->
 <div id="invoice" class="invoice-box">
 
-<b>GSTIN : 29AADFL1359E1ZE</b>
-<b style="float:right">TAX INVOICE</b>
+<div class="flex">
+  <b>GSTIN : 29AADFL1359E1ZE</b>
+  <b>TAX INVOICE</b>
+</div>
 
-<h2 style="text-align:center">LOTUS ENGINEERING</h2>
+<h2 style="text-align:center;">LOTUS ENGINEERING</h2>
 
-<div style="text-align:center;font-size:12px">
+<div style="text-align:center;font-size:12px;">
 Manufacture of : Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>
 Kitchen Fume exhaust Systems & General Fabricator<br>
 Bangalore - 560091
@@ -152,37 +148,47 @@ Bangalore - 560091
 
 <hr>
 
+<!-- CUSTOMER + DETAILS -->
 <table>
 <tr>
-<td width="60%">
+<td style="width:60%; padding:10px; text-align:left;">
 <b>M/s.</b> <span id="custName"></span><br><br>
 <span id="custAddress"></span><br><br>
 GSTIN: <span id="custGST"></span>
 </td>
 
-<td>
+<td style="padding:10px;">
 Invoice: <span id="invNo"></span><br>
 Date: <span id="date"></span><br>
 Vehicle: <span id="v"></span><br>
-Eway: <span id="e"></span>
+E-Way: <span id="e"></span>
 </td>
 </tr>
 </table>
 
-<table id="printItems">
-<tr>
-<th>Sl</th><th>Description</th><th>HSN</th><th>Qty</th><th>Rate</th><th>Amount</th>
-</tr>
-</table>
-
+<!-- ITEMS -->
 <table>
 <tr>
-<td width="60%">
+<th>Sl</th>
+<th>Description</th>
+<th>HSN</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+
+<tbody id="printItems"></tbody>
+</table>
+
+<!-- TOTAL -->
+<table>
+<tr>
+<td style="width:60%; text-align:left; padding:10px;">
 <b>Rupees in Words:</b><br>
 <span id="words"></span>
 </td>
 
-<td>
+<td style="padding:10px;">
 Sub: <span id="sub"></span><br>
 CGST: <span id="cg"></span><br>
 SGST: <span id="sg"></span><br>
@@ -193,38 +199,23 @@ SGST: <span id="sg"></span><br>
 
 <br><br>
 
-<div style="text-align:right">
+<div class="flex">
+<div>Receiver Signature</div>
+
+<div class="right">
 For LOTUS ENGINEERING<br><br>
 <img id="signImg" width="120"><br>
 Authorised Signatory
 </div>
-
 </div>
 
 </div>
 
-<!-- FIREBASE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.db = db;
-window.addDoc = addDoc;
-window.collection = collection;
-window.getDocs = getDocs;
-</script>
+</div>
 
 <script>
 
+// ADD ITEM
 function addRow(){
   let row = itemTable.insertRow();
   row.innerHTML = `
@@ -235,24 +226,40 @@ function addRow(){
   `;
 }
 
-function numberToWords(num){
-  return num + " only";
-}
-
+// SIGNATURE
 signUpload.onchange = e=>{
   let reader = new FileReader();
-  reader.onload = x=>signImg.src = x.target.result;
+  reader.onload = x=> signImg.src = x.target.result;
   reader.readAsDataURL(e.target.files[0]);
 };
 
-async function generateInvoice(){
+// WORDS
+function numberToWords(num){
+  return num.toLocaleString("en-IN") + " only";
+}
+
+// GENERATE
+function generateInvoice(){
+
+  let nameVal = name.value.trim();
+
+  custName.innerText = nameVal || "________";
+  custAddress.innerText = address.value;
+  custGST.innerText = gst.value;
+
+  invNo.innerText = invoiceNo.value;
+  date.innerText = new Date().toLocaleDateString();
+  v.innerText = vehicle.value;
+  e.innerText = eway.value;
+
+  printItems.innerHTML = "";
 
   let total = 0;
-  printItems.innerHTML = printItems.rows[0].outerHTML;
 
-  [...itemTable.rows].forEach((r,i)=>{
+  [...itemTable.rows].forEach((row,i)=>{
     if(i==0)return;
-    let inputs = r.querySelectorAll("input");
+
+    let inputs = row.querySelectorAll("input");
 
     let amt = inputs[2].value * inputs[3].value;
     total += amt;
@@ -260,26 +267,17 @@ async function generateInvoice(){
     printItems.innerHTML += `
     <tr>
       <td>${i}</td>
-      <td>${inputs[0].value}</td>
+      <td style="text-align:left">${inputs[0].value}</td>
       <td>${inputs[1].value}</td>
       <td>${inputs[2].value}</td>
       <td>${inputs[3].value}</td>
-      <td>${amt}</td>
+      <td style="text-align:right">${amt}</td>
     </tr>`;
   });
 
   let cgst = total * 0.09;
   let sgst = total * 0.09;
   let grand = total + cgst + sgst;
-
-  custName.innerText = name.value || "______";
-  custAddress.innerText = address.value;
-  custGST.innerText = gst.value;
-
-  invNo.innerText = invoiceNoInput.value;
-  date.innerText = new Date().toLocaleDateString();
-  v.innerText = vehicle.value;
-  e.innerText = eway.value;
 
   sub.innerText = total;
   cg.innerText = cgst.toFixed(2);
@@ -288,62 +286,13 @@ async function generateInvoice(){
 
   words.innerText = numberToWords(grand);
 
-  await addDoc(collection(db,"invoices"),{
-    customer:name.value,
-    total:grand
-  });
-
   html2canvas(invoice).then(canvas=>{
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p','mm','a4');
     pdf.addImage(canvas.toDataURL("image/png"),'PNG',0,0,210,297);
     pdf.save("invoice.pdf");
   });
-
-  loadDashboard();
 }
-
-async function loadInvoices(){
-  const snap = await getDocs(collection(db,"invoices"));
-  let html="";
-  snap.forEach(d=>{
-    let data=d.data();
-    html+=`<div>${data.customer} - ₹${data.total}</div>`;
-  });
-  history.innerHTML=html;
-}
-
-async function loadDashboard(){
-  const snap = await getDocs(collection(db,"invoices"));
-  let total=0;
-  snap.forEach(d=> total+=d.data().total);
-  dashboard.innerHTML="Total Sales: ₹ "+total;
-}
-
-function shareWhatsApp(){
-  let text=`Invoice ${invNo.innerText} Total ₹${tot.innerText}`;
-  window.open("https://wa.me/?text="+encodeURIComponent(text));
-}
-
-async function loadCustomers(){
-  const snap = await getDocs(collection(db,"customers"));
-  let html="<option>Select Customer</option>";
-  snap.forEach(d=>{
-    let c=d.data();
-    html+=`<option value='${JSON.stringify(c)}'>${c.name}</option>`;
-  });
-  customerSelect.innerHTML=html;
-}
-
-function fillCustomer(){
-  let c=JSON.parse(customerSelect.value);
-  name.value=c.name;
-  address.value=c.address;
-  gst.value=c.gst;
-}
-
-loadCustomers();
-loadDashboard();
 
 </script>
 
