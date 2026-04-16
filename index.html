@@ -16,7 +16,7 @@
     button { padding:10px; margin-top:10px; width:100%; background:#007bff; color:white; border:none; cursor:pointer; }
 
     .container { max-width:1000px; margin:auto; padding:10px; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; }
+    .topbar { display:flex; justify-content:space-between; }
 
     table { width:100%; border-collapse:collapse; font-size:12px; }
     table, th, td { border:1px solid #ccc; }
@@ -45,18 +45,18 @@
     <h3>Login</h3>
     <input id="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Signup</button>
+    <button id="loginBtn">Login</button>
+    <button id="signupBtn">Signup</button>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" style="display:none;">
+<div id="appPage" style="display:none;">
 <div class="container">
 
 <div class="topbar">
   <h3>🏭 Lotus Billing</h3>
-  <button onclick="logout()" style="width:auto;">Logout</button>
+  <button id="logoutBtn" style="width:auto;">Logout</button>
 </div>
 
 <div class="card">
@@ -70,8 +70,8 @@
 
 <input type="file" id="signUpload">
 
-<button onclick="addRow()">➕ Add Item</button>
-<button onclick="generateInvoice()">📄 Generate PDF</button>
+<button id="addItemBtn">➕ Add Item</button>
+<button id="generateBtn">📄 Generate PDF</button>
 </div>
 
 <table id="itemTable">
@@ -114,7 +114,7 @@ Eway: <span id="e"></span>
 <table>
 <tr>
 <td width="60%">
-<b>Rupees in Words:</b><br>
+<b>Words:</b><br>
 <span id="words"></span>
 </td>
 
@@ -130,12 +130,11 @@ SGST: <span id="sg"></span><br>
 <br><br>
 
 <div style="display:flex; justify-content:space-between;">
-<div>Receiver Signature</div>
-
+<div>Receiver</div>
 <div>
 For LOTUS ENGINEERING<br><br>
 <img id="signImg" width="120"><br>
-Authorised Signatory
+Authorised
 </div>
 </div>
 
@@ -144,8 +143,8 @@ Authorised Signatory
 </div>
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -156,86 +155,68 @@ const firebaseConfig = {
   projectId: "lotus-billing",
   storageBucket: "lotus-billing.firebasestorage.app",
   messagingSenderId: "701098372021",
-  appId: "1:701098372021:web:fccf674647bad3221f07fc",
-  measurementId: "G-YZJW6XD60K"
+  appId: "1:701098372021:web:fccf674647bad3221f07fc"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-window.auth = auth;
-window.db = db;
-window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-window.signOut = signOut;
-window.onAuthStateChanged = onAuthStateChanged;
-window.addDoc = addDoc;
-window.collection = collection;
-</script>
+// DOM
+const loginPage = document.getElementById("loginPage");
+const appPage = document.getElementById("appPage");
 
-<script>
-
-// AUTH
-async function login(){
-  try {
-    await signInWithEmailAndPassword(auth,
-      document.getElementById("email").value,
-      document.getElementById("password").value
-    );
-    alert("Login success");
-  } catch (e) {
-    alert(e.message);
-  }
-}
-
-async function signup(){
-  try {
-    await createUserWithEmailAndPassword(auth,
-      document.getElementById("email").value,
-      document.getElementById("password").value
-    );
-    alert("Signup success");
-  } catch (e) {
-    alert(e.message);
-  }
-}
-
-function logout(){
-  signOut(auth);
-}
-
-onAuthStateChanged(auth, user=>{
-  if(user){
-    loginPage.style.display="none";
-    app.style.display="block";
+// AUTH STATE FIX (THIS FIXES YOUR ISSUE)
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginPage.style.display = "none";
+    appPage.style.display = "block";
   } else {
-    loginPage.style.display="flex";
-    app.style.display="none";
+    loginPage.style.display = "flex";
+    appPage.style.display = "none";
   }
 });
 
-window.login = login;
-window.signup = signup;
-window.logout = logout;
+// LOGIN
+document.getElementById("loginBtn").onclick = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, email.value, password.value);
+  } catch (e) {
+    alert(e.message);
+  }
+};
 
-// BILLING
-function addRow(){
+// SIGNUP
+document.getElementById("signupBtn").onclick = async () => {
+  try {
+    await createUserWithEmailAndPassword(auth, email.value, password.value);
+  } catch (e) {
+    alert(e.message);
+  }
+};
+
+// LOGOUT
+document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+// ADD ITEM
+document.getElementById("addItemBtn").onclick = () => {
   let row = itemTable.insertRow();
   row.innerHTML = `
-  <td><input></td>
-  <td><input></td>
-  <td><input type="number"></td>
-  <td><input type="number"></td>`;
-}
+    <td><input></td>
+    <td><input></td>
+    <td><input type="number"></td>
+    <td><input type="number"></td>`;
+};
 
+// SIGN
 signUpload.onchange = e=>{
   let r=new FileReader();
   r.onload=x=>signImg.src=x.target.result;
   r.readAsDataURL(e.target.files[0]);
 };
 
-function generateInvoice(){
+// GENERATE
+document.getElementById("generateBtn").onclick = async () => {
 
   custName.innerText = name.value || "_____";
   custAddress.innerText = address.value;
@@ -250,20 +231,20 @@ function generateInvoice(){
   let total=0;
 
   [...itemTable.rows].forEach((r,i)=>{
-    if(i==0)return;
+    if(i===0)return;
     let inputs=r.querySelectorAll("input");
     let amt=inputs[2].value*inputs[3].value;
     total+=amt;
 
     printItems.innerHTML+=`
-    <tr>
-      <td>${i}</td>
-      <td style="text-align:left">${inputs[0].value}</td>
-      <td>${inputs[1].value}</td>
-      <td>${inputs[2].value}</td>
-      <td>${inputs[3].value}</td>
-      <td style="text-align:right">${amt}</td>
-    </tr>`;
+      <tr>
+        <td>${i}</td>
+        <td style="text-align:left">${inputs[0].value}</td>
+        <td>${inputs[1].value}</td>
+        <td>${inputs[2].value}</td>
+        <td>${inputs[3].value}</td>
+        <td style="text-align:right">${amt}</td>
+      </tr>`;
   });
 
   let cgst=total*0.09;
@@ -276,11 +257,11 @@ function generateInvoice(){
   tot.innerText=grand.toFixed(2);
   words.innerText=grand+" only";
 
-  addDoc(collection(db,"invoices"),{
-    user:auth.currentUser.uid,
-    customer:name.value,
-    total:grand,
-    created:new Date()
+  await addDoc(collection(db,"invoices"),{
+    user: auth.currentUser.uid,
+    customer: name.value,
+    total: grand,
+    created: new Date()
   });
 
   html2canvas(invoice).then(canvas=>{
@@ -289,7 +270,7 @@ function generateInvoice(){
     pdf.addImage(canvas.toDataURL(),"PNG",0,0,210,297);
     pdf.save("invoice.pdf");
   });
-}
+};
 
 </script>
 
