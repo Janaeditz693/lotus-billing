@@ -44,7 +44,7 @@
 <h2>Lotus Billing Software</h2>
 
 <!-- INPUT -->
-<input id="name" placeholder="Customer Name">
+<input id="name" placeholder="Customer Name (M/s)">
 <input id="address" placeholder="Address">
 <input id="gst" placeholder="GSTIN"><br>
 
@@ -229,12 +229,12 @@ document.getElementById("signUpload").onchange = function () {
 
 async function generateInvoice() {
 
-  let nameVal = name.value;
+  let nameVal = document.getElementById("name").value.trim();
   let addressVal = address.value;
   let gstVal = gst.value;
   let invManual = invoiceNoInput.value;
 
-  document.getElementById("custName").innerText = nameVal || "";
+  document.getElementById("custName").innerText = nameVal ? nameVal : "__________";
   document.getElementById("custAddress").innerText = addressVal || "";
   document.getElementById("custGST").innerText = gstVal || "";
 
