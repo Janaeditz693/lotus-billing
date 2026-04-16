@@ -1,28 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lotus SaaS Billing</title>
+  <title>Lotus Billing SaaS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
     body { font-family: Arial; margin:0; background:#f4f6f9; }
-
     .center { display:flex; justify-content:center; align-items:center; height:100vh; }
     .card { background:white; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); }
 
     input { width:100%; padding:10px; margin:5px 0; }
-    button { padding:10px; margin-top:10px; width:100%; background:#007bff; color:white; border:none; }
+    button { padding:10px; margin-top:10px; width:100%; background:#007bff; color:white; border:none; cursor:pointer; }
 
     .container { max-width:1000px; margin:auto; padding:10px; }
-    .topbar { display:flex; justify-content:space-between; margin-bottom:10px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; }
 
     table { width:100%; border-collapse:collapse; font-size:12px; }
     table, th, td { border:1px solid #ccc; }
-    th, td { padding:6px; }
+    th, td { padding:6px; text-align:center; }
 
     .invoice-box {
       width:794px;
@@ -57,11 +55,10 @@
 <div class="container">
 
 <div class="topbar">
-  <h3>🏭 Lotus Billing SaaS</h3>
+  <h3>🏭 Lotus Billing</h3>
   <button onclick="logout()" style="width:auto;">Logout</button>
 </div>
 
-<!-- INPUT -->
 <div class="card">
 <input id="name" placeholder="Customer Name">
 <input id="address" placeholder="Address">
@@ -77,12 +74,10 @@
 <button onclick="generateInvoice()">📄 Generate PDF</button>
 </div>
 
-<!-- ITEMS -->
 <table id="itemTable">
 <tr><th>Description</th><th>HSN</th><th>Qty</th><th>Rate</th></tr>
 </table>
 
-<!-- INVOICE -->
 <div id="invoice" class="invoice-box">
 
 <div style="display:flex; justify-content:space-between;">
@@ -119,7 +114,7 @@ Eway: <span id="e"></span>
 <table>
 <tr>
 <td width="60%">
-<b>Words:</b><br>
+<b>Rupees in Words:</b><br>
 <span id="words"></span>
 </td>
 
@@ -135,11 +130,12 @@ SGST: <span id="sg"></span><br>
 <br><br>
 
 <div style="display:flex; justify-content:space-between;">
-<div>Receiver</div>
+<div>Receiver Signature</div>
+
 <div>
 For LOTUS ENGINEERING<br><br>
 <img id="signImg" width="120"><br>
-Authorised
+Authorised Signatory
 </div>
 </div>
 
@@ -181,12 +177,28 @@ window.collection = collection;
 <script>
 
 // AUTH
-function login(){
-  signInWithEmailAndPassword(auth, email.value, password.value);
+async function login(){
+  try {
+    await signInWithEmailAndPassword(auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    );
+    alert("Login success");
+  } catch (e) {
+    alert(e.message);
+  }
 }
 
-function signup(){
-  createUserWithEmailAndPassword(auth, email.value, password.value);
+async function signup(){
+  try {
+    await createUserWithEmailAndPassword(auth,
+      document.getElementById("email").value,
+      document.getElementById("password").value
+    );
+    alert("Signup success");
+  } catch (e) {
+    alert(e.message);
+  }
 }
 
 function logout(){
@@ -203,6 +215,10 @@ onAuthStateChanged(auth, user=>{
   }
 });
 
+window.login = login;
+window.signup = signup;
+window.logout = logout;
+
 // BILLING
 function addRow(){
   let row = itemTable.insertRow();
@@ -213,7 +229,6 @@ function addRow(){
   <td><input type="number"></td>`;
 }
 
-// SIGN
 signUpload.onchange = e=>{
   let r=new FileReader();
   r.onload=x=>signImg.src=x.target.result;
@@ -222,7 +237,7 @@ signUpload.onchange = e=>{
 
 function generateInvoice(){
 
-  custName.innerText = name.value || "____";
+  custName.innerText = name.value || "_____";
   custAddress.innerText = address.value;
   custGST.innerText = gst.value;
 
@@ -243,11 +258,11 @@ function generateInvoice(){
     printItems.innerHTML+=`
     <tr>
       <td>${i}</td>
-      <td>${inputs[0].value}</td>
+      <td style="text-align:left">${inputs[0].value}</td>
       <td>${inputs[1].value}</td>
       <td>${inputs[2].value}</td>
       <td>${inputs[3].value}</td>
-      <td>${amt}</td>
+      <td style="text-align:right">${amt}</td>
     </tr>`;
   });
 
@@ -265,7 +280,7 @@ function generateInvoice(){
     user:auth.currentUser.uid,
     customer:name.value,
     total:grand,
-    date:new Date()
+    created:new Date()
   });
 
   html2canvas(invoice).then(canvas=>{
