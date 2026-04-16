@@ -23,13 +23,123 @@
     th, td { padding:6px; text-align:center; }
 
     .invoice-box {
-      width:794px;
-      min-height:1123px;
-      background:white;
-      margin:auto;
-      padding:20px;
-      border:2px solid black;
-    }
+  width: 794px;
+  min-height: 1123px;
+  padding: 20px;
+  margin: auto;
+  border: 2px solid black;
+  background: #fff;
+  font-size: 13px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+.company {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-top: 5px;
+}
+
+.sub-company {
+  text-align: center;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.line {
+  border: 1px solid black;
+  margin: 10px 0;
+}
+
+/* BOX */
+.box {
+  width: 100%;
+  border: 1.5px solid black;
+  border-collapse: collapse;
+}
+
+.box td {
+  border: 1px solid black;
+  padding: 8px;
+  vertical-align: top;
+}
+
+.leftBox { width: 60%; }
+.rightBox { width: 40%; }
+
+.inner td {
+  border: none;
+  padding: 3px;
+}
+
+/* ITEMS */
+.items {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.items th {
+  border: 1.5px solid black;
+  font-weight: bold;
+}
+
+.items td {
+  border: 1px solid black;
+}
+
+/* WORDS */
+.words {
+  width: 60%;
+  padding: 10px;
+}
+
+/* TOTAL */
+.totals {
+  width: 40%;
+}
+
+.totals table {
+  width: 100%;
+}
+
+.totals td {
+  padding: 5px;
+}
+
+.r {
+  text-align: right;
+}
+
+.grand td {
+  font-weight: bold;
+  border-top: 1.5px solid black;
+}
+
+/* SIGN */
+.sign {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.auth {
+  text-align: right;
+}
+
+/* PRINT */
+@media print {
+  body {
+    margin: 0;
+  }
+}
 
     @media(max-width:768px){
       .invoice-box { width:100%; transform:scale(0.9); transform-origin:top; }
@@ -80,62 +190,94 @@
 
 <div id="invoice" class="invoice-box">
 
-<div style="display:flex; justify-content:space-between;">
-<b>GSTIN : 29AADFL1359E1ZE</b>
-<b>TAX INVOICE</b>
-</div>
+  <!-- HEADER -->
+  <div class="header">
+    <div><b>GSTIN : 29AADFL1359E1ZE</b></div>
+    <div><b>TAX INVOICE</b></div>
+  </div>
 
-<h2 style="text-align:center;">LOTUS ENGINEERING</h2>
+  <div class="company">
+    LOTUS ENGINEERING
+  </div>
 
-<hr>
+  <div class="sub-company">
+    Manufacture of : Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>
+    Kitchen Fume exhaust Systems & General Fabricator<br>
+    Bangalore - 560091
+  </div>
 
-<table>
-<tr>
-<td width="60%">
-<b>M/s.</b> <span id="custName"></span><br><br>
-<span id="custAddress"></span><br>
-GSTIN: <span id="custGST"></span>
-</td>
+  <hr class="line">
 
-<td>
-Invoice: <span id="invNo"></span><br>
-Date: <span id="date"></span><br>
-Vehicle: <span id="v"></span><br>
-Eway: <span id="e"></span>
-</td>
-</tr>
-</table>
+  <!-- CUSTOMER + DETAILS -->
+  <table class="box">
+    <tr>
+      <td class="leftBox">
+        <b>M/s.</b> <span id="custName"></span><br><br>
 
-<table>
-<tr><th>Sl</th><th>Description</th><th>HSN</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
-<tbody id="printItems"></tbody>
-</table>
+        <div class="address">
+          <span id="custAddress"></span>
+        </div><br>
 
-<table>
-<tr>
-<td width="60%">
-<b>Words:</b><br>
-<span id="words"></span>
-</td>
+        <b>GSTIN:</b> <span id="custGST"></span>
+      </td>
 
-<td>
-Sub: <span id="sub"></span><br>
-CGST: <span id="cg"></span><br>
-SGST: <span id="sg"></span><br>
-<b>Total: <span id="tot"></span></b>
-</td>
-</tr>
-</table>
+      <td class="rightBox">
+        <table class="inner">
+          <tr><td>Invoice</td><td>: <span id="invNo"></span></td></tr>
+          <tr><td>Date</td><td>: <span id="date"></span></td></tr>
+          <tr><td>Vehicle</td><td>: <span id="v"></span></td></tr>
+          <tr><td>E-Way</td><td>: <span id="e"></span></td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 
-<br><br>
+  <!-- ITEMS -->
+  <table class="items">
+    <thead>
+      <tr>
+        <th style="width:5%">Sl</th>
+        <th style="width:45%">Description</th>
+        <th style="width:15%">HSN</th>
+        <th style="width:10%">Qty</th>
+        <th style="width:12%">Rate</th>
+        <th style="width:13%">Amount</th>
+      </tr>
+    </thead>
 
-<div style="display:flex; justify-content:space-between;">
-<div>Receiver</div>
-<div>
-For LOTUS ENGINEERING<br><br>
-<img id="signImg" width="120"><br>
-Authorised
-</div>
+    <tbody id="printItems"></tbody>
+  </table>
+
+  <!-- TOTAL -->
+  <table class="box">
+    <tr>
+      <td class="words">
+        <b>Rupees in Words:</b><br>
+        <span id="words"></span>
+      </td>
+
+      <td class="totals">
+        <table>
+          <tr><td>Sub Total</td><td class="r" id="sub"></td></tr>
+          <tr><td>CGST 9%</td><td class="r" id="cg"></td></tr>
+          <tr><td>SGST 9%</td><td class="r" id="sg"></td></tr>
+          <tr class="grand"><td>Grand Total</td><td class="r" id="tot"></td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- SIGNATURE -->
+  <div class="sign">
+    <div>Receiver’s Signature</div>
+
+    <div class="auth">
+      For LOTUS ENGINEERING<br><br>
+      <img id="signImg" width="120"><br>
+      Authorised Signatory
+    </div>
+  </div>
+
 </div>
 
 </div>
@@ -227,25 +369,26 @@ document.getElementById("generateBtn").onclick = async () => {
   v.innerText = vehicle.value;
   e.innerText = eway.value;
 
-  printItems.innerHTML="";
-  let total=0;
+  printItems.innerHTML = "";
 
-  [...itemTable.rows].forEach((r,i)=>{
-    if(i===0)return;
-    let inputs=r.querySelectorAll("input");
-    let amt=inputs[2].value*inputs[3].value;
-    total+=amt;
+rows.forEach((row, i) => {
+  if (i === 0) return;
 
-    printItems.innerHTML+=`
-      <tr>
-        <td>${i}</td>
-        <td style="text-align:left">${inputs[0].value}</td>
-        <td>${inputs[1].value}</td>
-        <td>${inputs[2].value}</td>
-        <td>${inputs[3].value}</td>
-        <td style="text-align:right">${amt}</td>
-      </tr>`;
-  });
+  let inputs = row.querySelectorAll("input");
+
+  let amt = inputs[2].value * inputs[3].value;
+
+  printItems.innerHTML += `
+    <tr>
+      <td>${i}</td>
+      <td style="text-align:left;">${inputs[0].value}</td>
+      <td>${inputs[1].value}</td>
+      <td>${inputs[2].value}</td>
+      <td>${inputs[3].value}</td>
+      <td style="text-align:right;">${amt}</td>
+    </tr>
+  `;
+});
 
   let cgst=total*0.09;
   let sgst=total*0.09;
