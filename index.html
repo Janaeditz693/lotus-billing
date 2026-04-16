@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lotus Billing Software</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    body { font-family: Arial; background:#ccc; }
+
+    .container { width: 900px; margin: auto; }
+
+    .invoice-box {
+      width: 794px;
+      min-height: 1123px;
+      background: white;
+      margin: auto;
+      padding: 20px;
+      border: 2px solid black;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    table, th, td { border: 1px solid black; }
+    th, td { padding: 6px; font-size: 12px; }
+
+    input { padding: 6px; margin: 4px; }
+
+    button { padding: 8px 12px; margin: 5px; }
+
+    .no-border td { border: none; }
+
+    h1 {
+      font-family: "Times New Roman";
+      text-align: center;
+      margin: 0;
+      letter-spacing: 2px;
+    }
+
+    @page {
+      size: A4;
+      margin: 10mm;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Lotus Billing Software</h2>
+
+<!-- INPUTS -->
+<input id="name" placeholder="Customer Name">
+<input id="address" placeholder="Address">
+<input id="gst" placeholder="GSTIN"><br>
+
+<input id="invoiceNoInput" placeholder="Invoice No">
+<input id="vehicle" placeholder="Vehicle No">
+<input id="eway" placeholder="E-Way Bill"><br>
+
+<input type="file" id="signUpload"><br>
+
+<button onclick="addRow()">➕ Add Item</button>
+<button onclick="generateInvoice()">📄 Generate PDF</button>
+
+<!-- ITEM TABLE -->
+<table id="itemTable">
+<tr>
+  <th>Description</th>
+  <th>HSN</th>
+  <th>Qty</th>
+  <th>Rate</th>
+  <th>Amount</th>
+</tr>
+</table>
+
+<hr>
+
+<!-- INVOICE -->
+<div id="invoice" class="invoice-box">
+
+  <!-- HEADER -->
+  <table class="no-border">
+    <tr>
+      <td><b>GSTIN : 29AADFL1359E1ZE</b></td>
+      <td style="text-align:right;"><b>TAX INVOICE</b></td>
+    </tr>
+  </table>
+
+  <table class="no-border">
+    <tr>
+      <td style="width:80px;">
+        <img src="https://via.placeholder.com/70" width="70">
+      </td>
+      <td style="text-align:center;">
+        <h1>LOTUS ENGINEERING</h1>
+
+        <div style="font-size:12px;">
+          Manufacture of : Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>
+          Kitchen Fume exhaust Systems & General Fabricator
+        </div>
+
+        <div style="font-size:11px;">
+          # Flat No. 91, Kachohalli Main Road, Nearby Saibaba Temple, Annapoorneshwari Industrial Estate,<br>
+          Machohalli Village, Bangalore - 560 091.
+        </div>
+
+        <div style="font-size:11px;">
+          E-mail : lotusengineering04@gmail.com | M : 9880266497
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- CUSTOMER -->
+  <table>
+    <tr>
+      <td style="width:60%;">
+        <b>M/s.</b> <span id="custName"></span><br><br>
+        <span id="custAddress"></span><br><br>
+        Party's GSTIN: <span id="custGST"></span>
+      </td>
+
+      <td style="width:40%;">
+        Invoice No: <span id="invNo"></span><br>
+        Date: <span id="date"></span><br>
+        Vehicle: <span id="v"></span><br>
+        E-Way: <span id="e"></span>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ITEMS -->
+  <table id="printItems">
+    <tr>
+      <th>Sl</th>
+      <th>Description</th>
+      <th>HSN</th>
+      <th>Qty</th>
+      <th>Rate</th>
+      <th>Amount</th>
+    </tr>
+  </table>
+
+  <!-- TOTAL -->
+  <table>
+    <tr>
+      <td style="width:60%;">
+        <b>Rupees in Words:</b><br>
+        <span id="words"></span>
+      </td>
+
+      <td style="width:40%;">
+        <table>
+          <tr><td>SUB TOTAL</td><td id="sub"></td></tr>
+          <tr><td>CGST 9%</td><td id="cg"></td></tr>
+          <tr><td>SGST 9%</td><td id="sg"></td></tr>
+          <tr><td><b>GRAND TOTAL</b></td><td id="tot"></td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <!-- SIGNATURE -->
+  <table class="no-border">
+    <tr>
+      <td style="height:80px;">Receiver's Signature</td>
+      <td style="text-align:right;">
+        <b>For LOTUS ENGINEERING</b><br><br>
+        <img id="signImg" width="120"><br>
+        Authorised Signatory
+      </td>
+    </tr>
+  </table>
+
+</div>
+
+</div>
+
+<script>
+
+function addRow() {
+  let table = document.getElementById("itemTable");
+  let row = table.insertRow();
+
+  row.innerHTML = `
+    <td><input></td>
+    <td><input></td>
+    <td><input type="number"></td>
+    <td><input type="number"></td>
+    <td>0</td>
+  `;
+}
+
+function numberToWords(num) {
+  const a = ["","one","two","three","four","five","six","seven","eight","nine","ten",
+  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+  const b = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+
+  if (num < 20) return a[num];
+  if (num < 100) return b[Math.floor(num/10)] + " " + a[num%10];
+  if (num < 1000) return a[Math.floor(num/100)] + " hundred " + numberToWords(num%100);
+  if (num < 100000)
+    return numberToWords(Math.floor(num/1000)) + " thousand " + numberToWords(num%1000);
+
+  return num;
+}
+
+document.getElementById("signUpload").onchange = function () {
+  let reader = new FileReader();
+  reader.onload = function (e) {
+    document.getElementById("signImg").src = e.target.result;
+  };
+  reader.readAsDataURL(this.files[0]);
+};
+
+function generateInvoice() {
+
+  let nameVal = document.getElementById("name").value;
+  let addressVal = document.getElementById("address").value;
+  let gstVal = document.getElementById("gst").value;
+
+  let invManual = document.getElementById("invoiceNoInput").value;
+
+  document.getElementById("custName").innerText = nameVal || "";
+  document.getElementById("custAddress").innerText = addressVal || "";
+  document.getElementById("custGST").innerText = gstVal || "";
+
+  document.getElementById("invNo").innerText = invManual;
+  document.getElementById("date").innerText = new Date().toLocaleDateString();
+
+  document.getElementById("v").innerText = vehicle.value;
+  document.getElementById("e").innerText = eway.value;
+
+  let rows = document.querySelectorAll("#itemTable tr");
+  let printTable = document.getElementById("printItems");
+
+  printTable.innerHTML = `
+  <tr>
+    <th>Sl</th><th>Description</th><th>HSN</th>
+    <th>Qty</th><th>Rate</th><th>Amount</th>
+  </tr>`;
+
+  let total = 0;
+
+  rows.forEach((row, i) => {
+    if (i === 0) return;
+
+    let inputs = row.querySelectorAll("input");
+
+    let desc = inputs[0].value;
+    let hsn = inputs[1].value;
+    let qty = inputs[2].value;
+    let rate = inputs[3].value;
+
+    let amt = qty * rate;
+    total += amt;
+
+    printTable.innerHTML += `
+      <tr>
+        <td>${i}</td>
+        <td>${desc}</td>
+        <td>${hsn}</td>
+        <td>${qty}</td>
+        <td>${rate}</td>
+        <td>${amt}</td>
+      </tr>
+    `;
+  });
+
+  let cgst = total * 0.09;
+  let sgst = total * 0.09;
+  let grand = total + cgst + sgst;
+
+  document.getElementById("sub").innerText = "₹ " + total;
+  document.getElementById("cg").innerText = "₹ " + cgst.toFixed(2);
+  document.getElementById("sg").innerText = "₹ " + sgst.toFixed(2);
+  document.getElementById("tot").innerText = "₹ " + grand.toFixed(2);
+
+  document.getElementById("words").innerText =
+    numberToWords(Math.floor(grand)).toUpperCase() + " ONLY";
+
+  html2canvas(document.getElementById("invoice")).then(canvas => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p','mm','a4');
+
+    pdf.addImage(canvas.toDataURL("image/png"), 'PNG', 0, 0, 210, 297);
+    pdf.save("invoice.pdf");
+  });
+}
+</script>
+
+</body>
+</html>
