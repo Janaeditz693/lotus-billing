@@ -1,38 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lotus Billing Software</title>
+  <title>Lotus Billing</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
-    body { font-family: Arial; background:#ccc; }
-    .container { width: 900px; margin: auto; }
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #f4f6f9;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 10px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      margin: 5px 5px 5px 0;
+      border: none;
+      border-radius: 6px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 6px;
+      text-align: center;
+    }
 
     .invoice-box {
       width: 794px;
       min-height: 1123px;
       background: white;
-      margin: auto;
       padding: 20px;
+      margin: auto;
       border: 2px solid black;
     }
 
-    table { width: 100%; border-collapse: collapse; }
-    table, th, td { border: 1px solid black; }
-    th, td { padding: 6px; font-size: 12px; }
-
-    input { padding: 6px; margin: 4px; }
-    button { padding: 8px 12px; margin: 5px; }
-
-    .no-border td { border: none; }
-
-    h1 {
-      font-family: "Times New Roman";
-      text-align: center;
-      margin: 0;
-      letter-spacing: 2px;
+    @media(max-width: 768px){
+      .invoice-box {
+        width: 100%;
+        transform: scale(0.9);
+        transform-origin: top;
+      }
     }
   </style>
 </head>
@@ -41,148 +89,129 @@
 
 <div class="container">
 
-<h2>Lotus Billing Software</h2>
+<h2>🏭 Lotus Billing System</h2>
 
-<!-- INPUT -->
-<input id="name" placeholder="Customer Name (M/s)">
+<!-- CUSTOMER -->
+<div class="card">
+<select id="customerSelect" onchange="fillCustomer()"></select>
+
+<input id="name" placeholder="Customer Name">
 <input id="address" placeholder="Address">
-<input id="gst" placeholder="GSTIN"><br>
+<input id="gst" placeholder="GSTIN">
 
 <input id="invoiceNoInput" placeholder="Invoice No">
 <input id="vehicle" placeholder="Vehicle No">
-<input id="eway" placeholder="E-Way Bill"><br>
+<input id="eway" placeholder="E-Way Bill">
 
-<input type="file" id="signUpload"><br>
+<select id="mode">
+  <option value="invoice">Tax Invoice</option>
+  <option value="challan">Delivery Challan</option>
+</select>
+
+<input type="file" id="signUpload">
 
 <button onclick="addRow()">➕ Add Item</button>
-<button onclick="generateInvoice()">📄 Generate PDF</button>
+<button onclick="generateInvoice()">📄 Generate</button>
+<button onclick="shareWhatsApp()">📤 WhatsApp</button>
 <button onclick="loadInvoices()">📂 History</button>
+</div>
 
-<!-- ITEM TABLE -->
+<!-- ITEMS -->
+<div class="card">
 <table id="itemTable">
 <tr>
   <th>Description</th>
   <th>HSN</th>
   <th>Qty</th>
   <th>Rate</th>
-  <th>Amount</th>
 </tr>
 </table>
+</div>
 
-<div id="history"></div>
+<!-- DASHBOARD -->
+<div class="card">
+<h3>📊 Dashboard</h3>
+<div id="dashboard"></div>
+</div>
 
-<hr>
+<div id="history" class="card"></div>
 
 <!-- INVOICE -->
 <div id="invoice" class="invoice-box">
 
-  <!-- HEADER -->
-  <table class="no-border">
-    <tr>
-      <td><b>GSTIN : 29AADFL1359E1ZE</b></td>
-      <td style="text-align:right;"><b>TAX INVOICE</b></td>
-    </tr>
-  </table>
+<b>GSTIN : 29AADFL1359E1ZE</b>
+<b style="float:right">TAX INVOICE</b>
 
-  <table class="no-border">
-    <tr>
-      <td style="width:80px;">
-        <img src="https://via.placeholder.com/70" width="70">
-      </td>
-      <td style="text-align:center;">
-        <h1>LOTUS ENGINEERING</h1>
+<h2 style="text-align:center">LOTUS ENGINEERING</h2>
 
-        <div style="font-size:12px;">
-          Manufacture of : Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>
-          Kitchen Fume exhaust Systems & General Fabricator
-        </div>
+<div style="text-align:center;font-size:12px">
+Manufacture of : Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>
+Kitchen Fume exhaust Systems & General Fabricator<br>
+Bangalore - 560091
+</div>
 
-        <div style="font-size:11px;">
-          # Flat No. 91, Kachohalli Main Road, Nearby Saibaba Temple,<br>
-          Annapoorneshwari Industrial Estate, Machohalli Village, Bangalore - 560 091.
-        </div>
+<hr>
 
-        <div style="font-size:11px;">
-          E-mail : lotusengineering04@gmail.com | M : 9880266497
-        </div>
-      </td>
-    </tr>
-  </table>
+<table>
+<tr>
+<td width="60%">
+<b>M/s.</b> <span id="custName"></span><br><br>
+<span id="custAddress"></span><br><br>
+GSTIN: <span id="custGST"></span>
+</td>
 
-  <!-- CUSTOMER -->
-  <table>
-    <tr>
-      <td style="width:60%;">
-        <b>M/s.</b> <span id="custName"></span><br><br>
-        <span id="custAddress"></span><br><br>
-        Party's GSTIN: <span id="custGST"></span>
-      </td>
+<td>
+Invoice: <span id="invNo"></span><br>
+Date: <span id="date"></span><br>
+Vehicle: <span id="v"></span><br>
+Eway: <span id="e"></span>
+</td>
+</tr>
+</table>
 
-      <td style="width:40%;">
-        Invoice No: <span id="invNo"></span><br>
-        Date: <span id="date"></span><br>
-        Vehicle: <span id="v"></span><br>
-        E-Way: <span id="e"></span>
-      </td>
-    </tr>
-  </table>
+<table id="printItems">
+<tr>
+<th>Sl</th><th>Description</th><th>HSN</th><th>Qty</th><th>Rate</th><th>Amount</th>
+</tr>
+</table>
 
-  <!-- ITEMS -->
-  <table id="printItems">
-    <tr>
-      <th>Sl</th>
-      <th>Description</th>
-      <th>HSN</th>
-      <th>Qty</th>
-      <th>Rate</th>
-      <th>Amount</th>
-    </tr>
-  </table>
+<table>
+<tr>
+<td width="60%">
+<b>Rupees in Words:</b><br>
+<span id="words"></span>
+</td>
 
-  <!-- TOTAL -->
-  <table>
-    <tr>
-      <td style="width:60%;">
-        <b>Rupees in Words:</b><br>
-        <span id="words"></span>
-      </td>
+<td>
+Sub: <span id="sub"></span><br>
+CGST: <span id="cg"></span><br>
+SGST: <span id="sg"></span><br>
+<b>Total: <span id="tot"></span></b>
+</td>
+</tr>
+</table>
 
-      <td style="width:40%;">
-        <table>
-          <tr><td>SUB TOTAL</td><td id="sub"></td></tr>
-          <tr><td>CGST 9%</td><td id="cg"></td></tr>
-          <tr><td>SGST 9%</td><td id="sg"></td></tr>
-          <tr><td><b>GRAND TOTAL</b></td><td id="tot"></td></tr>
-        </table>
-      </td>
-    </tr>
-  </table>
+<br><br>
 
-  <!-- SIGNATURE -->
-  <table class="no-border">
-    <tr>
-      <td style="height:80px;">Receiver's Signature</td>
-      <td style="text-align:right;">
-        <b>For LOTUS ENGINEERING</b><br><br>
-        <img id="signImg" width="120"><br>
-        Authorised Signatory
-      </td>
-    </tr>
-  </table>
+<div style="text-align:right">
+For LOTUS ENGINEERING<br><br>
+<img id="signImg" width="120"><br>
+Authorised Signatory
+</div>
 
 </div>
 
 </div>
 
-<!-- 🔥 FIREBASE -->
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBYbhsTSe7omYunZE2Vkmqv4APNZXe7BC0",
-  authDomain: "lotus-billing.firebaseapp.com",
-  projectId: "lotus-billing",
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
 };
 
 const app = initializeApp(firebaseConfig);
@@ -196,123 +225,126 @@ window.getDocs = getDocs;
 
 <script>
 
-function addRow() {
-  let row = document.getElementById("itemTable").insertRow();
+function addRow(){
+  let row = itemTable.insertRow();
   row.innerHTML = `
     <td><input></td>
     <td><input></td>
     <td><input type="number"></td>
     <td><input type="number"></td>
-    <td>0</td>
   `;
 }
 
-function numberToWords(num) {
-  const a = ["","one","two","three","four","five","six","seven","eight","nine","ten",
-  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
-  const b = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
-
-  if (num < 20) return a[num];
-  if (num < 100) return b[Math.floor(num/10)] + " " + a[num%10];
-  if (num < 1000) return a[Math.floor(num/100)] + " hundred " + numberToWords(num%100);
-  if (num < 100000)
-    return numberToWords(Math.floor(num/1000)) + " thousand " + numberToWords(num%1000);
-
-  return num;
+function numberToWords(num){
+  return num + " only";
 }
 
-document.getElementById("signUpload").onchange = function () {
+signUpload.onchange = e=>{
   let reader = new FileReader();
-  reader.onload = e => document.getElementById("signImg").src = e.target.result;
-  reader.readAsDataURL(this.files[0]);
+  reader.onload = x=>signImg.src = x.target.result;
+  reader.readAsDataURL(e.target.files[0]);
 };
 
-async function generateInvoice() {
-
-  let nameVal = document.getElementById("name").value.trim();
-  let addressVal = address.value;
-  let gstVal = gst.value;
-  let invManual = invoiceNoInput.value;
-
-  document.getElementById("custName").innerText = nameVal ? nameVal : "__________";
-  document.getElementById("custAddress").innerText = addressVal || "";
-  document.getElementById("custGST").innerText = gstVal || "";
-
-  document.getElementById("invNo").innerText = invManual;
-  document.getElementById("date").innerText = new Date().toLocaleDateString();
-
-  document.getElementById("v").innerText = vehicle.value;
-  document.getElementById("e").innerText = eway.value;
-
-  let rows = document.querySelectorAll("#itemTable tr");
-  let printTable = document.getElementById("printItems");
-  printTable.innerHTML = printTable.rows[0].outerHTML;
+async function generateInvoice(){
 
   let total = 0;
+  printItems.innerHTML = printItems.rows[0].outerHTML;
 
-  rows.forEach((row, i) => {
-    if (i === 0) return;
+  [...itemTable.rows].forEach((r,i)=>{
+    if(i==0)return;
+    let inputs = r.querySelectorAll("input");
 
-    let inputs = row.querySelectorAll("input");
-
-    let desc = inputs[0].value;
-    let hsn = inputs[1].value;
-    let qty = inputs[2].value;
-    let rate = inputs[3].value;
-
-    let amt = qty * rate;
+    let amt = inputs[2].value * inputs[3].value;
     total += amt;
 
-    printTable.innerHTML += `
-      <tr>
-        <td>${i}</td>
-        <td>${desc}</td>
-        <td>${hsn}</td>
-        <td>${qty}</td>
-        <td>${rate}</td>
-        <td>${amt}</td>
-      </tr>
-    `;
+    printItems.innerHTML += `
+    <tr>
+      <td>${i}</td>
+      <td>${inputs[0].value}</td>
+      <td>${inputs[1].value}</td>
+      <td>${inputs[2].value}</td>
+      <td>${inputs[3].value}</td>
+      <td>${amt}</td>
+    </tr>`;
   });
 
   let cgst = total * 0.09;
   let sgst = total * 0.09;
   let grand = total + cgst + sgst;
 
-  sub.innerText = "₹ " + total;
-  cg.innerText = "₹ " + cgst.toFixed(2);
-  sg.innerText = "₹ " + sgst.toFixed(2);
-  tot.innerText = "₹ " + grand.toFixed(2);
+  custName.innerText = name.value || "______";
+  custAddress.innerText = address.value;
+  custGST.innerText = gst.value;
 
-  words.innerText = numberToWords(Math.floor(grand)).toUpperCase() + " ONLY";
+  invNo.innerText = invoiceNoInput.value;
+  date.innerText = new Date().toLocaleDateString();
+  v.innerText = vehicle.value;
+  e.innerText = eway.value;
 
-  await addDoc(collection(db, "invoices"), {
-    customer: nameVal,
-    invoiceNo: invManual,
-    total: grand,
-    date: new Date().toISOString()
+  sub.innerText = total;
+  cg.innerText = cgst.toFixed(2);
+  sg.innerText = sgst.toFixed(2);
+  tot.innerText = grand.toFixed(2);
+
+  words.innerText = numberToWords(grand);
+
+  await addDoc(collection(db,"invoices"),{
+    customer:name.value,
+    total:grand
   });
 
-  html2canvas(invoice).then(canvas => {
+  html2canvas(invoice).then(canvas=>{
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p','mm','a4');
-    pdf.addImage(canvas.toDataURL("image/png"), 'PNG', 0, 0, 210, 297);
+    pdf.addImage(canvas.toDataURL("image/png"),'PNG',0,0,210,297);
     pdf.save("invoice.pdf");
   });
+
+  loadDashboard();
 }
 
-async function loadInvoices() {
-  const querySnapshot = await getDocs(collection(db, "invoices"));
-
-  let html = "";
-
-  querySnapshot.forEach(doc => {
-    let data = doc.data();
-    html += `<div>${data.invoiceNo} | ${data.customer} | ₹${data.total}</div>`;
+async function loadInvoices(){
+  const snap = await getDocs(collection(db,"invoices"));
+  let html="";
+  snap.forEach(d=>{
+    let data=d.data();
+    html+=`<div>${data.customer} - ₹${data.total}</div>`;
   });
-
-  history.innerHTML = html;
+  history.innerHTML=html;
 }
+
+async function loadDashboard(){
+  const snap = await getDocs(collection(db,"invoices"));
+  let total=0;
+  snap.forEach(d=> total+=d.data().total);
+  dashboard.innerHTML="Total Sales: ₹ "+total;
+}
+
+function shareWhatsApp(){
+  let text=`Invoice ${invNo.innerText} Total ₹${tot.innerText}`;
+  window.open("https://wa.me/?text="+encodeURIComponent(text));
+}
+
+async function loadCustomers(){
+  const snap = await getDocs(collection(db,"customers"));
+  let html="<option>Select Customer</option>";
+  snap.forEach(d=>{
+    let c=d.data();
+    html+=`<option value='${JSON.stringify(c)}'>${c.name}</option>`;
+  });
+  customerSelect.innerHTML=html;
+}
+
+function fillCustomer(){
+  let c=JSON.parse(customerSelect.value);
+  name.value=c.name;
+  address.value=c.address;
+  gst.value=c.gst;
+}
+
+loadCustomers();
+loadDashboard();
+
 </script>
 
 </body>
