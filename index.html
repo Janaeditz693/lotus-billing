@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotus Engineering - SaaS Manager</title>
+    <title>Lotus Engineering - Smart SaaS Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -16,101 +16,89 @@
         .a4-page { width: 210mm; min-height: 297mm; }
     </style>
 </head>
-<body class="bg-gray-200 min-h-screen flex flex-col md:flex-row">
+<body class="bg-slate-200 min-h-screen flex flex-col md:flex-row">
 
     <div class="no-print w-full md:w-96 bg-slate-900 text-white p-6 overflow-y-auto h-screen sticky top-0 shadow-xl">
-        <h2 class="text-xl font-bold border-b border-slate-700 pb-4 mb-6">Invoice Editor</h2>
+        <h2 class="text-xl font-bold border-b border-slate-700 pb-4 mb-6">Smart Invoice Editor</h2>
         
-        <div class="mb-4">
-            <label class="block text-[10px] uppercase text-slate-400 mb-1">Document Type</label>
-            <select onchange="updateHeader(this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-                <option value="TAX INVOICE">Tax Invoice</option>
-                <option value="DELIVERY CHALLAN">Delivery Challan</option>
-            </select>
-        </div>
-
         <div class="grid grid-cols-2 gap-2 mb-4">
-            <div>
+            <div class="col-span-2">
                 <label class="block text-[10px] uppercase text-slate-400 mb-1">Invoice No</label>
-                <input type="text" oninput="syncText('inv-no', this.value)" placeholder="354" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-            </div>
-            <div>
-                <label class="block text-[10px] uppercase text-slate-400 mb-1">Date</label>
-                <input type="text" oninput="syncText('inv-date', this.value)" placeholder="23/12/25" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+                <input type="text" id="input-inv-no" oninput="syncText('inv-no', this.value)" placeholder="354" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
             </div>
             <div>
                 <label class="block text-[10px] uppercase text-slate-400 mb-1">Vehicle No</label>
-                <input type="text" oninput="syncText('inv-veh', this.value)" placeholder="KA.05..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+                <input type="text" id="input-veh" oninput="syncText('inv-veh', this.value)" placeholder="KA.05..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
             </div>
             <div>
                 <label class="block text-[10px] uppercase text-slate-400 mb-1">E-Way Bill</label>
-                <input type="text" oninput="syncText('inv-eway', this.value)" placeholder="1722..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+                <input type="text" id="input-eway" oninput="syncText('inv-eway', this.value)" placeholder="1722..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
             </div>
         </div>
 
-        <div class="space-y-3 mb-6">
-            <label class="block text-[10px] uppercase text-slate-400">Receiver Details</label>
-            <input type="text" placeholder="M/s Name" oninput="syncText('party-name', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-            <textarea placeholder="Address" oninput="syncText('party-address', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm h-20"></textarea>
-            <input type="text" placeholder="Party GSTIN" oninput="syncText('party-gst', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+        <div class="space-y-3 mb-6 p-3 bg-slate-800 rounded-lg border border-slate-700">
+            <label class="block text-[10px] uppercase text-blue-400 font-bold">Receiver (Auto-Fill Active)</label>
+            <input type="text" id="input-name" list="customer-list" placeholder="M/s Name (Type to search...)" oninput="handleCustomerLookup('name', this.value)" class="w-full bg-slate-700 border border-slate-600 rounded p-2 text-sm">
+            <datalist id="customer-list"></datalist>
+            
+            <textarea id="input-address" placeholder="Address" oninput="syncText('party-address', this.value)" class="w-full bg-slate-700 border border-slate-600 rounded p-2 text-sm h-16"></textarea>
+            
+            <input type="text" id="input-gst" placeholder="Party GSTIN" oninput="handleCustomerLookup('gst', this.value)" class="w-full bg-slate-700 border border-slate-600 rounded p-2 text-sm">
         </div>
 
-        <div class="border-t border-slate-700 pt-4">
-            <label class="block text-[10px] uppercase text-slate-400 mb-2">Add Item</label>
+        <div class="border-t border-slate-700 pt-4 mb-6">
+            <label class="block text-[10px] uppercase text-slate-400 mb-2">Item Details</label>
             <input type="text" id="item-desc" placeholder="Description" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm mb-2">
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <input type="number" id="item-qty" placeholder="Qty" class="bg-slate-800 border border-slate-600 rounded p-2 text-sm">
                 <input type="number" id="item-rate" placeholder="Rate" class="bg-slate-800 border border-slate-600 rounded p-2 text-sm">
             </div>
-            <button onclick="addItem()" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-2 rounded transition">Add to Invoice</button>
+            <button onclick="addItem()" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-2 rounded transition">Add Item & Save Client</button>
         </div>
 
-        <button onclick="window.print()" class="w-full mt-6 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded flex items-center justify-center gap-2">
-            Print A4 Document
-        </button>
+        <div class="mb-6">
+            <label class="block text-[10px] uppercase text-slate-400 mb-1">Authorised Signature (Optional)</label>
+            <input type="file" accept="image/*" onchange="uploadSignature(event)" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-slate-200">
+        </div>
+
+        <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded shadow-lg">Print A4 Invoice</button>
     </div>
 
     <div class="flex-1 flex justify-center p-4 overflow-y-auto">
-        <div class="a4-page bg-white p-[15mm] shadow-2xl border border-gray-300">
+        <div class="a4-page bg-white p-[15mm] shadow-2xl border border-gray-300 relative">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h1 id="doc-title" class="text-3xl font-black text-blue-800 uppercase italic">TAX INVOICE</h1>
+                    <h1 class="text-3xl font-black text-blue-800 uppercase italic">TAX INVOICE</h1>
                     <p class="text-sm font-bold mt-1">GSTIN: 29AADFL1359E1ZE</p>
                 </div>
                 <div class="text-right">
                     <h2 class="text-2xl font-bold text-blue-900">LOTUS ENGINEERING</h2>
-                    <p class="text-[9px] text-gray-600 leading-tight">Manufacture of: Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>Kitchen Fume exhaust Systems & General Fabricator</p>
+                    <p class="text-[9px] text-gray-600 italic leading-tight">Manufacture of: Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems</p>
                 </div>
-            </div>
-
-            <div class="text-[10px] flex justify-between border-b border-black pb-2 mb-4">
-                <p># Flat No. 91, Kachohalli Main Road, Nearby Saibaba Temple, Machohalli Village, Bangalore - 560 091.</p>
-                <p class="text-right">Email: lotusengineering04@gmail.com | Mob: +91 98802 66497</p>
             </div>
 
             <div class="grid grid-cols-2 border border-black mb-4 text-xs">
-                <div class="p-2 border-r border-black">
+                <div class="p-2 border-r border-black min-h-[100px]">
                     <p class="font-bold underline mb-1">Details of Receiver:</p>
-                    <div id="party-name" class="font-bold uppercase">M/S. AEQUS CONSUMER PRODUCTS</div>
-                    <div id="party-address" class="whitespace-pre-line">...</div>
-                    <p class="mt-2 font-bold">Party's GSTIN: <span id="party-gst">...</span></p>
+                    <div id="party-name" class="font-bold uppercase text-blue-900">...</div>
+                    <div id="party-address" class="whitespace-pre-line text-gray-700">...</div>
+                    <p class="mt-2 font-bold">Party GST: <span id="party-gst" class="font-mono">...</span></p>
                 </div>
                 <div>
-                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Invoice No:</span><span id="inv-no">354</span></div>
-                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Date:</span><span id="inv-date">23/12/25</span></div>
-                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Vehicle No:</span><span id="inv-veh">KA.05.AL.0035</span></div>
-                    <div class="grid grid-cols-2 p-1"><span class="font-bold pl-1">E-Way Bill:</span><span id="inv-eway">1722 9899 9446</span></div>
+                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Invoice No:</span><span id="inv-no">---</span></div>
+                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Date:</span><span>16/04/2026</span></div>
+                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Vehicle No:</span><span id="inv-veh">---</span></div>
+                    <div class="grid grid-cols-2 p-1"><span class="font-bold pl-1">E-Way Bill:</span><span id="inv-eway">---</span></div>
                 </div>
             </div>
 
             <table class="w-full border-collapse border border-black text-[11px] mb-4">
-                <thead class="bg-gray-50 uppercase">
+                <thead class="bg-gray-100 font-bold">
                     <tr>
-                        <th class="border border-black p-1 w-8">Sl.</th>
+                        <th class="border border-black p-1 w-8 text-center">Sl</th>
                         <th class="border border-black p-1">Description of Goods</th>
-                        <th class="border border-black p-1 w-12 text-center">HSN</th>
                         <th class="border border-black p-1 w-12 text-center">Qty</th>
-                        <th class="border border-black p-1 w-20 text-right">Rate</th>
+                        <th class="border border-black p-1 w-24 text-right">Rate</th>
                         <th class="border border-black p-1 w-24 text-right">Amount</th>
                         <th class="no-print border border-black w-8"></th>
                     </tr>
@@ -118,7 +106,7 @@
                 <tbody id="items-body"></tbody>
             </table>
 
-            <div class="flex justify-between items-start mt-4">
+            <div class="flex justify-between items-start">
                 <div class="w-1/2">
                     <p class="text-[9px] font-bold">Total in Words:</p>
                     <p id="total-words" class="italic text-[11px] border-b border-gray-400 font-semibold pt-1">Zero Rupees Only</p>
@@ -131,9 +119,12 @@
                 </div>
             </div>
 
-            <div class="mt-20 flex justify-between items-end">
-                <div class="w-40 border-t border-black text-center text-[9px] pt-1">Receiver's Signature</div>
-                <div class="text-center">
+            <div class="mt-24 flex justify-between items-end">
+                <div class="w-40 border-t border-black text-center text-[9px] pt-1 uppercase">Receiver's Signature</div>
+                <div class="text-center relative">
+                    <div class="absolute bottom-6 left-0 right-0 flex justify-center">
+                        <img id="sig-image" src="" class="max-h-16 opacity-90 hidden">
+                    </div>
                     <p class="text-[9px] mb-12 italic">For LOTUS ENGINEERING</p>
                     <div class="w-48 border-t border-black text-center text-[10px] pt-1 font-bold">AUTHORISED SIGNATORY</div>
                 </div>
@@ -142,10 +133,49 @@
     </div>
 
     <script>
+        // Memory Logic
+        let customers = JSON.parse(localStorage.getItem('lotus_customers')) || [];
         let items = [];
 
         function syncText(id, val) { document.getElementById(id).innerText = val || "..."; }
-        function updateHeader(val) { document.getElementById('doc-title').innerText = val; }
+
+        function handleCustomerLookup(type, value) {
+            // Update the preview immediately
+            if(type === 'name') syncText('party-name', value);
+            if(type === 'gst') syncText('party-gst', value);
+
+            // Lookup memory
+            const match = customers.find(c => 
+                (type === 'name' && c.name.toLowerCase() === value.toLowerCase()) || 
+                (type === 'gst' && c.gst === value)
+            );
+
+            if (match) {
+                document.getElementById('input-name').value = match.name;
+                document.getElementById('input-address').value = match.address;
+                document.getElementById('input-gst').value = match.gst;
+                syncText('party-name', match.name);
+                syncText('party-address', match.address);
+                syncText('party-gst', match.gst);
+            }
+        }
+
+        function saveCustomer() {
+            const name = document.getElementById('input-name').value;
+            const address = document.getElementById('input-address').value;
+            const gst = document.getElementById('input-gst').value;
+            
+            if (name && gst && !customers.find(c => c.gst === gst)) {
+                customers.push({ name, address, gst });
+                localStorage.setItem('lotus_customers', JSON.stringify(customers));
+                updateDatalist();
+            }
+        }
+
+        function updateDatalist() {
+            const list = document.getElementById('customer-list');
+            list.innerHTML = customers.map(c => `<option value="${c.name}">${c.gst}</option>`).join('');
+        }
 
         function addItem() {
             const desc = document.getElementById('item-desc').value;
@@ -153,6 +183,7 @@
             const rate = parseFloat(document.getElementById('item-rate').value) || 0;
             if (desc && qty > 0) {
                 items.push({ desc, qty, rate, amount: qty * rate });
+                saveCustomer(); // Remember customer when an invoice is actually made
                 renderTable();
                 document.getElementById('item-desc').value = '';
             }
@@ -166,28 +197,26 @@
             let sub = 0;
             items.forEach((item, i) => {
                 sub += item.amount;
-                body.innerHTML += `
-                    <tr>
-                        <td class="border border-black p-1 text-center">${i+1}</td>
-                        <td class="border border-black p-1 uppercase font-semibold">${item.desc}</td>
-                        <td class="border border-black p-1 text-center">8414</td>
-                        <td class="border border-black p-1 text-center">${item.qty}</td>
-                        <td class="border border-black p-1 text-right">${item.rate.toFixed(2)}</td>
-                        <td class="border border-black p-1 text-right font-bold">${item.amount.toFixed(2)}</td>
-                        <td class="border border-black p-1 text-center no-print"><button onclick="deleteItem(${i})" class="text-red-500">✕</button></td>
-                    </tr>`;
+                body.innerHTML += `<tr><td class="border border-black p-1 text-center">${i+1}</td><td class="border border-black p-1 uppercase">${item.desc}</td><td class="border border-black p-1 text-center">${item.qty}</td><td class="border border-black p-1 text-right">${item.rate.toFixed(2)}</td><td class="border border-black p-1 text-right font-bold">${item.amount.toFixed(2)}</td><td class="border border-black p-1 text-center no-print"><button onclick="deleteItem(${i})" class="text-red-500">✕</button></td></tr>`;
             });
-            for(let i=items.length; i<10; i++) body.innerHTML += `<tr class="h-6"><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="no-print border border-black"></td></tr>`;
+            for(let i=items.length; i<8; i++) body.innerHTML += `<tr class="h-6"><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="no-print border border-black"></td></tr>`;
             
-            const cgst = sub * 0.09;
-            const sgst = sub * 0.09;
-            const total = sub + cgst + sgst;
-
-            document.getElementById('sub-total').innerText = sub.toFixed(2);
-            document.getElementById('cgst').innerText = cgst.toFixed(2);
-            document.getElementById('sgst').innerText = sgst.toFixed(2);
-            document.getElementById('grand-total').innerText = total.toFixed(2);
+            const total = sub * 1.18;
+            document.getElementById('sub-total').innerText = sub.toLocaleString('en-IN');
+            document.getElementById('cgst').innerText = (sub * 0.09).toLocaleString('en-IN');
+            document.getElementById('sgst').innerText = (sub * 0.09).toLocaleString('en-IN');
+            document.getElementById('grand-total').innerText = total.toLocaleString('en-IN');
             document.getElementById('total-words').innerText = numberToWords(Math.round(total)) + " Rupees Only";
+        }
+
+        function uploadSignature(e) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const img = document.getElementById('sig-image');
+                img.src = reader.result;
+                img.classList.remove('hidden');
+            }
+            reader.readAsDataURL(e.target.files[0]);
         }
 
         function numberToWords(n) {
@@ -210,6 +239,8 @@
             out += g(n%100, "");
             return out.trim();
         }
+
+        updateDatalist();
         renderTable();
     </script>
 </body>
