@@ -1,421 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Lotus Billing SaaS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <style>
-    body { font-family: Arial; margin:0; background:#f4f6f9; }
-    .center { display:flex; justify-content:center; align-items:center; height:100vh; }
-    .card { background:white; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.2); }
-
-    input { width:100%; padding:10px; margin:5px 0; }
-    button { padding:10px; margin-top:10px; width:100%; background:#007bff; color:white; border:none; cursor:pointer; }
-
-    .container { max-width:1000px; margin:auto; padding:10px; }
-    .topbar { display:flex; justify-content:space-between; }
-
-    table { width:100%; border-collapse:collapse; font-size:12px; }
-    table, th, td { border:1px solid #ccc; }
-    th, td { padding:6px; text-align:center; }
-
-    .invoice-box {
-  width: 794px;
-  min-height: 1123px;
-  padding: 20px;
-  margin: auto;
-  border: 2px solid black;
-  background: #fff;
-  font-size: 13px;
-}
-
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-}
-
-.company {
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 2px;
-  margin-top: 5px;
-}
-
-.sub-company {
-  text-align: center;
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-.line {
-  border: 1px solid black;
-  margin: 10px 0;
-}
-
-/* BOX */
-.box {
-  width: 100%;
-  border: 1.5px solid black;
-  border-collapse: collapse;
-}
-
-.box td {
-  border: 1px solid black;
-  padding: 8px;
-  vertical-align: top;
-}
-
-.leftBox { width: 60%; }
-.rightBox { width: 40%; }
-
-.inner td {
-  border: none;
-  padding: 3px;
-}
-
-/* ITEMS */
-.items {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.items th {
-  border: 1.5px solid black;
-  font-weight: bold;
-}
-
-.items td {
-  border: 1px solid black;
-}
-
-/* WORDS */
-.words {
-  width: 60%;
-  padding: 10px;
-}
-
-/* TOTAL */
-.totals {
-  width: 40%;
-}
-
-.totals table {
-  width: 100%;
-}
-
-.totals td {
-  padding: 5px;
-}
-
-.r {
-  text-align: right;
-}
-
-.grand td {
-  font-weight: bold;
-  border-top: 1.5px solid black;
-}
-
-/* SIGN */
-.sign {
-  margin-top: 40px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.auth {
-  text-align: right;
-}
-
-/* PRINT */
-@media print {
-  body {
-    margin: 0;
-  }
-}
-
-    @media(max-width:768px){
-      .invoice-box { width:100%; transform:scale(0.9); transform-origin:top; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            body { background: white; }
+            .no-print { display: none; }
+            .print-container { 
+                width: 210mm; 
+                height: 297mm; 
+                margin: 0; 
+                padding: 10mm;
+                box-shadow: none !important;
+            }
+        }
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20px;
+            margin: 10px auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
+<body class="bg-gray-100 font-sans text-sm text-gray-800">
 
-<body>
-
-<!-- LOGIN -->
-<div id="loginPage" class="center">
-  <div class="card">
-    <h3>Login</h3>
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button id="loginBtn">Login</button>
-    <button id="signupBtn">Signup</button>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="appPage" style="display:none;">
-<div class="container">
-
-<div class="topbar">
-  <h3>🏭 Lotus Billing</h3>
-  <button id="logoutBtn" style="width:auto;">Logout</button>
-</div>
-
-<div class="card">
-<input id="name" placeholder="Customer Name">
-<input id="address" placeholder="Address">
-<input id="gst" placeholder="GSTIN">
-
-<input id="invoiceNo" placeholder="Invoice No">
-<input id="vehicle" placeholder="Vehicle">
-<input id="eway" placeholder="Eway">
-
-<input type="file" id="signUpload">
-
-<button id="addItemBtn">➕ Add Item</button>
-<button id="generateBtn">📄 Generate PDF</button>
-</div>
-
-<table id="itemTable">
-<tr><th>Description</th><th>HSN</th><th>Qty</th><th>Rate</th></tr>
-</table>
-
-<div id="invoice" class="invoice-box">
-
-  <!-- HEADER -->
-  <div class="header">
-    <div><b>GSTIN : 29AADFL1359E1ZE</b></div>
-    <div><b>TAX INVOICE</b></div>
-  </div>
-
-  <div class="company">
-    LOTUS ENGINEERING
-  </div>
-
-  <div class="sub-company">
-    Manufacture of : Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems<br>
-    Kitchen Fume exhaust Systems & General Fabricator<br>
-    Bangalore - 560091
-  </div>
-
-  <hr class="line">
-
-  <!-- CUSTOMER + DETAILS -->
-  <table class="box">
-    <tr>
-      <td class="leftBox">
-        <b>M/s.</b> <span id="custName"></span><br><br>
-
-        <div class="address">
-          <span id="custAddress"></span>
-        </div><br>
-
-        <b>GSTIN:</b> <span id="custGST"></span>
-      </td>
-
-      <td class="rightBox">
-        <table class="inner">
-          <tr><td>Invoice</td><td>: <span id="invNo"></span></td></tr>
-          <tr><td>Date</td><td>: <span id="date"></span></td></tr>
-          <tr><td>Vehicle</td><td>: <span id="v"></span></td></tr>
-          <tr><td>E-Way</td><td>: <span id="e"></span></td></tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-
-  <!-- ITEMS -->
-  <table class="items">
-    <thead>
-      <tr>
-        <th style="width:5%">Sl</th>
-        <th style="width:45%">Description</th>
-        <th style="width:15%">HSN</th>
-        <th style="width:10%">Qty</th>
-        <th style="width:12%">Rate</th>
-        <th style="width:13%">Amount</th>
-      </tr>
-    </thead>
-
-    <tbody id="printItems"></tbody>
-  </table>
-
-  <!-- TOTAL -->
-  <table class="box">
-    <tr>
-      <td class="words">
-        <b>Rupees in Words:</b><br>
-        <span id="words"></span>
-      </td>
-
-      <td class="totals">
-        <table>
-          <tr><td>Sub Total</td><td class="r" id="sub"></td></tr>
-          <tr><td>CGST 9%</td><td class="r" id="cg"></td></tr>
-          <tr><td>SGST 9%</td><td class="r" id="sg"></td></tr>
-          <tr class="grand"><td>Grand Total</td><td class="r" id="tot"></td></tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-
-  <!-- SIGNATURE -->
-  <div class="sign">
-    <div>Receiver’s Signature</div>
-
-    <div class="auth">
-      For LOTUS ENGINEERING<br><br>
-      <img id="signImg" width="120"><br>
-      Authorised Signatory
+    <div class="no-print flex justify-center py-4 bg-slate-800 gap-4">
+        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">Print Invoice</button>
+        <button onclick="toggleType()" id="typeBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded shadow">Switch to Delivery Challan</button>
     </div>
-  </div>
 
-</div>
+    <div class="a4-page print-container border border-gray-300">
+        
+        <div class="border-b-2 border-black pb-4 mb-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 id="docTitle" class="text-2xl font-bold uppercase tracking-widest text-blue-900">Tax Invoice</h1>
+                    <p class="font-semibold text-xs mt-1">GSTIN: 29AADFL1359E1ZE</p>
+                </div>
+                <div class="text-right">
+                    <h2 class="text-3xl font-serif font-black text-blue-900">LOTUS ENGINEERING</h2>
+                    <p class="text-[10px] italic">Manufacture of: Centrifugal fans, Axial Flow Fan, Bag Filter, Roof Extractor Systems</p>
+                    <p class="text-[10px]">Kitchen Fume exhaust Systems & General Fabricator</p>
+                </div>
+            </div>
+            
+            <div class="mt-4 flex justify-between text-[11px] leading-tight">
+                <div class="max-w-[60%]">
+                    # Flat No. 91, Kachohalli Main Road, Nearby Saibaba Temple,<br>
+                    Annapoorneshwari Industrial Estate, Machohalli Village, Bangalore - 560 091.
+                </div>
+                <div class="text-right">
+                    Email: lotusengineering04@gmail.com<br>
+                    Mobile: +91 98802 66497
+                </div>
+            </div>
+        </div>
 
-</div>
+        <div class="grid grid-cols-2 border border-black mb-4">
+            <div class="p-2 border-r border-black">
+                <p class="font-bold underline mb-1">Details of Receiver (Billed to):</p>
+                <div class="font-semibold">M/s AQUATION</div>
+                <p>No 8. Murneshware Layout,</p>
+                <p>Indiranagar Post, Bangalore - 38</p>
+                <p class="mt-2">Party's GSTIN: <span class="font-mono">29DVEPP3918N1ZU</span></p>
+            </div>
+            <div class="grid grid-rows-4 text-xs">
+                <div class="p-1 border-b border-black grid grid-cols-2">
+                    <span class="font-bold">Invoice No:</span> <span>354</span>
+                </div>
+                <div class="p-1 border-b border-black grid grid-cols-2">
+                    <span class="font-bold">Date:</span> <span>23/12/25</span>
+                </div>
+                <div class="p-1 border-b border-black grid grid-cols-2">
+                    <span class="font-bold">Vehicle No:</span> <span>KA.05.AL.0035</span>
+                </div>
+                <div class="p-1 grid grid-cols-2 bg-gray-50">
+                    <span class="font-bold">E-Way Bill:</span> <span>1722 9899 9446</span>
+                </div>
+            </div>
+        </div>
 
-</div>
-</div>
+        <div class="min-h-[400px]">
+            <table class="w-full border-collapse border border-black">
+                <thead>
+                    <tr class="bg-gray-100 border-b border-black">
+                        <th class="border-r border-black p-1 w-12 text-center">Sl.</th>
+                        <th class="border-r border-black p-1 text-left">Description of Goods</th>
+                        <th class="border-r border-black p-1 w-20 text-center">HSN</th>
+                        <th class="border-r border-black p-1 w-16 text-center">Qty</th>
+                        <th class="border-r border-black p-1 w-24 text-right">Rate</th>
+                        <th class="p-1 w-32 text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="h-10">
+                        <td class="border-r border-black p-1 text-center">1</td>
+                        <td class="border-r border-black p-1">Centrifugal Fan System - Industrial Grade</td>
+                        <td class="border-r border-black p-1 text-center">8414</td>
+                        <td class="border-r border-black p-1 text-center">1.00</td>
+                        <td class="border-r border-black p-1 text-right">45,000.00</td>
+                        <td class="p-1 text-right">45,000.00</td>
+                    </tr>
+                    <tr class="h-64 border-b border-black"><td class="border-r border-black"></td><td class="border-r border-black"></td><td class="border-r border-black"></td><td class="border-r border-black"></td><td class="border-r border-black"></td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
 
-<script type="module">
+        <div class="flex justify-between items-start mt-4">
+            <div class="w-1/2">
+                <p class="text-[10px] mb-2 font-bold">Total in Words:</p>
+                <p class="italic capitalize border-b border-gray-400 pb-1">Fifty Three Thousand One Hundred Only</p>
+            </div>
+            <div class="w-1/3 text-xs">
+                <div class="flex justify-between border-b p-1">
+                    <span>Sub Total:</span> <span>45,000.00</span>
+                </div>
+                <div class="flex justify-between border-b p-1">
+                    <span>CGST (9%):</span> <span>4,050.00</span>
+                </div>
+                <div class="flex justify-between border-b p-1">
+                    <span>SGST (9%):</span> <span>4,050.00</span>
+                </div>
+                <div class="flex justify-between p-1 bg-gray-100 font-bold text-sm border-b-2 border-black">
+                    <span>Grand Total:</span> <span>53,100.00</span>
+                </div>
+            </div>
+        </div>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        <div class="mt-12 flex justify-between items-end">
+            <div class="text-[10px]">
+                <p class="font-bold underline">Terms & Conditions:</p>
+                <ul class="list-disc ml-4">
+                    <li>Goods once sold will not be taken back.</li>
+                    <li>Payment should be made within 15 days.</li>
+                </ul>
+                <div class="mt-8 pt-4 border-t w-48 text-center border-black">Receiver's Signature</div>
+            </div>
+            <div class="text-center">
+                <p class="text-xs mb-10">For <span class="font-bold">LOTUS ENGINEERING</span></p>
+                <p class="border-t border-black pt-1 w-48">Authorised Signatory</p>
+            </div>
+        </div>
+    </div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBYbhsTSe7omYunZE2Vkmqv4APNZXe7BC0",
-  authDomain: "lotus-billing.firebaseapp.com",
-  projectId: "lotus-billing",
-  storageBucket: "lotus-billing.firebasestorage.app",
-  messagingSenderId: "701098372021",
-  appId: "1:701098372021:web:fccf674647bad3221f07fc"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// DOM
-const loginPage = document.getElementById("loginPage");
-const appPage = document.getElementById("appPage");
-
-// AUTH STATE FIX (THIS FIXES YOUR ISSUE)
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loginPage.style.display = "none";
-    appPage.style.display = "block";
-  } else {
-    loginPage.style.display = "flex";
-    appPage.style.display = "none";
-  }
-});
-
-// LOGIN
-document.getElementById("loginBtn").onclick = async () => {
-  try {
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-  } catch (e) {
-    alert(e.message);
-  }
-};
-
-// SIGNUP
-document.getElementById("signupBtn").onclick = async () => {
-  try {
-    await createUserWithEmailAndPassword(auth, email.value, password.value);
-  } catch (e) {
-    alert(e.message);
-  }
-};
-
-// LOGOUT
-document.getElementById("logoutBtn").onclick = () => signOut(auth);
-
-// ADD ITEM
-document.getElementById("addItemBtn").onclick = () => {
-  let row = itemTable.insertRow();
-  row.innerHTML = `
-    <td><input></td>
-    <td><input></td>
-    <td><input type="number"></td>
-    <td><input type="number"></td>`;
-};
-
-// SIGN
-signUpload.onchange = e=>{
-  let r=new FileReader();
-  r.onload=x=>signImg.src=x.target.result;
-  r.readAsDataURL(e.target.files[0]);
-};
-
-// GENERATE
-document.getElementById("generateBtn").onclick = async () => {
-
-  custName.innerText = name.value || "_____";
-  custAddress.innerText = address.value;
-  custGST.innerText = gst.value;
-
-  invNo.innerText = invoiceNo.value;
-  date.innerText = new Date().toLocaleDateString();
-  v.innerText = vehicle.value;
-  e.innerText = eway.value;
-
-  printItems.innerHTML = "";
-
-rows.forEach((row, i) => {
-  if (i === 0) return;
-
-  let inputs = row.querySelectorAll("input");
-
-  let amt = inputs[2].value * inputs[3].value;
-
-  printItems.innerHTML += `
-    <tr>
-      <td>${i}</td>
-      <td style="text-align:left;">${inputs[0].value}</td>
-      <td>${inputs[1].value}</td>
-      <td>${inputs[2].value}</td>
-      <td>${inputs[3].value}</td>
-      <td style="text-align:right;">${amt}</td>
-    </tr>
-  `;
-});
-
-  let cgst=total*0.09;
-  let sgst=total*0.09;
-  let grand=total+cgst+sgst;
-
-  sub.innerText=total;
-  cg.innerText=cgst.toFixed(2);
-  sg.innerText=sgst.toFixed(2);
-  tot.innerText=grand.toFixed(2);
-  words.innerText=grand+" only";
-
-  await addDoc(collection(db,"invoices"),{
-    user: auth.currentUser.uid,
-    customer: name.value,
-    total: grand,
-    created: new Date()
-  });
-
-  html2canvas(invoice).then(canvas=>{
-    const { jsPDF } = window.jspdf;
-    const pdf=new jsPDF('p','mm','a4');
-    pdf.addImage(canvas.toDataURL(),"PNG",0,0,210,297);
-    pdf.save("invoice.pdf");
-  });
-};
-
-</script>
-
+    <script>
+        function toggleType() {
+            const title = document.getElementById('docTitle');
+            const btn = document.getElementById('typeBtn');
+            if (title.innerText === "TAX INVOICE") {
+                title.innerText = "DELIVERY CHALLAN";
+                btn.innerText = "Switch to Tax Invoice";
+            } else {
+                title.innerText = "TAX INVOICE";
+                btn.innerText = "Switch to Delivery Challan";
+            }
+        }
+    </script>
 </body>
 </html>
