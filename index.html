@@ -223,29 +223,53 @@ function addItem() {
 function renderTable() {
     const body = document.getElementById('items-body');
     body.innerHTML = '';
-    let sub = 0;
+    let runningSubTotal = 0;
 
     items.forEach((item, i) => {
-        sub += item.amount;
+        // Force conversion to numbers to prevent "NaN" or "0" errors
+        const qty = Number(item.qty);
+        const rate = Number(item.rate);
+        const amount = qty * rate;
+        
+        runningSubTotal += amount;
+
         body.innerHTML += `
             <tr>
                 <td class="border border-black p-1 text-center">${i+1}</td>
                 <td class="border border-black p-1 uppercase font-semibold">${item.desc}</td>
-                <td class="border border-black p-1 text-center font-mono">${item.hsn}</td> <td class="border border-black p-1 text-center">${item.qty}</td>
-                <td class="border border-black p-1 text-right">${item.rate.toFixed(2)}</td>
-                <td class="border border-black p-1 text-right font-bold">${item.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                <td class="border border-black p-1 text-center">${item.hsn}</td>
+                <td class="border border-black p-1 text-center">${qty}</td>
+                <td class="border border-black p-1 text-right">${rate.toFixed(2)}</td>
+                <td class="border border-black p-1 text-right font-bold">${amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                 <td class="border border-black p-1 text-center no-print">
                     <button onclick="deleteItem(${i})" class="text-red-500 font-bold">✕</button>
                 </td>
             </tr>`;
     });
 
-    // Fill empty rows to keep the invoice height consistent (A4 look)
+    // Fill empty rows (A4 structure)
     for(let i = items.length; i < 10; i++) {
-        body.innerHTML += `<tr class="h-7"><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="no-print border border-black"></td></tr>`;
+        body.innerHTML += `<tr class="h-8"><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="no-print border border-black"></td></tr>`;
     }
 
-    calculateTotals(sub);
+    // CRITICAL: Call the calculation function with the final subtotal
+    updateFinalCalculations(runningSubTotal);
+}
+
+function updateFinalCalculations(subTotal) {
+    const cgst = subTotal * 0.09;
+    const sgst = subTotal * 0.09;
+    const grandTotal = subTotal + cgst + sgst;
+
+    // Update the UI
+    document.getElementById('sub-total').innerText = subTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('cgst').innerText = cgst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('sgst').innerText = sgst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('grand-total').innerText = grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+
+    // Update Words (Round to nearest whole number for currency words)
+    const roundedGrandTotal = Math.round(grandTotal);
+    document.getElementById('total-words').innerText = numberToWords(roundedGrandTotal) + " Rupees Only";
 }
 
         function uploadSignature(e) {
