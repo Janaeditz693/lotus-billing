@@ -52,15 +52,26 @@
             <input type="text" id="input-gst" placeholder="Party GSTIN" oninput="handleCustomerLookup('gst', this.value)" class="w-full bg-slate-700 border border-slate-600 rounded p-2 text-sm">
         </div>
 
-        <div class="border-t border-slate-700 pt-4 mb-6">
-            <label class="block text-[10px] uppercase text-slate-400 mb-2">Item Details</label>
-            <input type="text" id="item-desc" placeholder="Description" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm mb-2">
-            <div class="grid grid-cols-2 gap-2 mb-2">
-                <input type="number" id="item-qty" placeholder="Qty" class="bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-                <input type="number" id="item-rate" placeholder="Rate" class="bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-            </div>
-            <button onclick="addItem()" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-2 rounded transition">Add Item & Save Client</button>
+       <div class="border-t border-slate-700 pt-4 mb-6">
+    <label class="block text-[10px] uppercase text-slate-400 mb-2">Item Details</label>
+    <input type="text" id="item-desc" placeholder="Description of Goods" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm mb-2 focus:border-blue-500 outline-none">
+    
+    <div class="grid grid-cols-3 gap-2 mb-2">
+        <div>
+            <label class="block text-[8px] uppercase text-slate-500 mb-1">HSN Code</label>
+            <input type="text" id="item-hsn" placeholder="8414" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
         </div>
+        <div>
+            <label class="block text-[8px] uppercase text-slate-500 mb-1">Qty</label>
+            <input type="number" id="item-qty" placeholder="1" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+        </div>
+        <div>
+            <label class="block text-[8px] uppercase text-slate-500 mb-1">Rate</label>
+            <input type="number" id="item-rate" placeholder="5000" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+        </div>
+    </div>
+    <button onclick="addItem()" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-2 rounded transition">Add Item & Save Client</button>
+</div>
 
         <div class="mb-6">
             <label class="block text-[10px] uppercase text-slate-400 mb-1">Authorised Signature (Optional)</label>
@@ -102,16 +113,16 @@
             </div>
 
             <table class="w-full border-collapse border border-black text-[11px] mb-4">
-                <thead class="bg-gray-100 font-bold">
-                    <tr>
-                        <th class="border border-black p-1 w-8 text-center">Sl</th>
-                        <th class="border border-black p-1">Description of Goods</th>
-                        <th class="border border-black p-1 w-12 text-center">Qty</th>
-                        <th class="border border-black p-1 w-24 text-right">Rate</th>
-                        <th class="border border-black p-1 w-24 text-right">Amount</th>
-                        <th class="no-print border border-black w-8"></th>
-                    </tr>
-                </thead>
+                <thead class="bg-gray-100 font-bold uppercase text-[10px]">
+    <tr>
+        <th class="border border-black p-1 w-8 text-center">Sl.</th>
+        <th class="border border-black p-1">Description</th>
+        <th class="border border-black p-1 w-16 text-center">HSN/SAC</th> <th class="border border-black p-1 w-12 text-center">Qty</th>
+        <th class="border border-black p-1 w-24 text-right">Rate</th>
+        <th class="border border-black p-1 w-24 text-right">Amount</th>
+        <th class="no-print border border-black w-8"></th>
+    </tr>
+</thead>
                 <tbody id="items-body"></tbody>
             </table>
 
@@ -186,37 +197,56 @@
             list.innerHTML = customers.map(c => `<option value="${c.name}">${c.gst}</option>`).join('');
         }
 
-        function addItem() {
-            const desc = document.getElementById('item-desc').value;
-            const qty = parseFloat(document.getElementById('item-qty').value) || 0;
-            const rate = parseFloat(document.getElementById('item-rate').value) || 0;
-            if (desc && qty > 0) {
-                items.push({ desc, qty, rate, amount: qty * rate });
-                saveCustomer(); // Remember customer when an invoice is actually made
-                renderTable();
-                document.getElementById('item-desc').value = '';
-            }
-        }
+        
 
-        function deleteItem(index) { items.splice(index, 1); renderTable(); }
+function addItem() {
+    const desc = document.getElementById('item-desc').value;
+    const hsn = document.getElementById('item-hsn').value || "8414"; // Default HSN if empty
+    const qty = parseFloat(document.getElementById('item-qty').value) || 0;
+    const rate = parseFloat(document.getElementById('item-rate').value) || 0;
 
-        function renderTable() {
-            const body = document.getElementById('items-body');
-            body.innerHTML = '';
-            let sub = 0;
-            items.forEach((item, i) => {
-                sub += item.amount;
-                body.innerHTML += `<tr><td class="border border-black p-1 text-center">${i+1}</td><td class="border border-black p-1 uppercase">${item.desc}</td><td class="border border-black p-1 text-center">${item.qty}</td><td class="border border-black p-1 text-right">${item.rate.toFixed(2)}</td><td class="border border-black p-1 text-right font-bold">${item.amount.toFixed(2)}</td><td class="border border-black p-1 text-center no-print"><button onclick="deleteItem(${i})" class="text-red-500">✕</button></td></tr>`;
-            });
-            for(let i=items.length; i<8; i++) body.innerHTML += `<tr class="h-6"><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="no-print border border-black"></td></tr>`;
-            
-            const total = sub * 1.18;
-            document.getElementById('sub-total').innerText = sub.toLocaleString('en-IN');
-            document.getElementById('cgst').innerText = (sub * 0.09).toLocaleString('en-IN');
-            document.getElementById('sgst').innerText = (sub * 0.09).toLocaleString('en-IN');
-            document.getElementById('grand-total').innerText = total.toLocaleString('en-IN');
-            document.getElementById('total-words').innerText = numberToWords(Math.round(total)) + " Rupees Only";
-        }
+    if (desc && qty > 0) {
+        // Push HSN into the item object
+        items.push({ desc, hsn, qty, rate, amount: qty * rate });
+        
+        saveCustomer(); // Memory logic
+        renderTable();
+
+        // Clear only item inputs
+        document.getElementById('item-desc').value = '';
+        document.getElementById('item-hsn').value = '';
+        document.getElementById('item-qty').value = '';
+        document.getElementById('item-rate').value = '';
+    }
+}
+
+function renderTable() {
+    const body = document.getElementById('items-body');
+    body.innerHTML = '';
+    let sub = 0;
+
+    items.forEach((item, i) => {
+        sub += item.amount;
+        body.innerHTML += `
+            <tr>
+                <td class="border border-black p-1 text-center">${i+1}</td>
+                <td class="border border-black p-1 uppercase font-semibold">${item.desc}</td>
+                <td class="border border-black p-1 text-center font-mono">${item.hsn}</td> <td class="border border-black p-1 text-center">${item.qty}</td>
+                <td class="border border-black p-1 text-right">${item.rate.toFixed(2)}</td>
+                <td class="border border-black p-1 text-right font-bold">${item.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                <td class="border border-black p-1 text-center no-print">
+                    <button onclick="deleteItem(${i})" class="text-red-500 font-bold">✕</button>
+                </td>
+            </tr>`;
+    });
+
+    // Fill empty rows to keep the invoice height consistent (A4 look)
+    for(let i = items.length; i < 10; i++) {
+        body.innerHTML += `<tr class="h-7"><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="border border-black"></td><td class="no-print border border-black"></td></tr>`;
+    }
+
+    calculateTotals(sub);
+}
 
         function uploadSignature(e) {
             const reader = new FileReader();
