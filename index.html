@@ -21,20 +21,26 @@
     <div class="no-print w-full md:w-96 bg-slate-900 text-white p-6 overflow-y-auto h-screen sticky top-0 shadow-xl">
         <h2 class="text-xl font-bold border-b border-slate-700 pb-4 mb-6">Smart Invoice Editor</h2>
         
-        <div class="grid grid-cols-2 gap-2 mb-4">
-            <div class="col-span-2">
-                <label class="block text-[10px] uppercase text-slate-400 mb-1">Invoice No</label>
-                <input type="text" id="input-inv-no" oninput="syncText('inv-no', this.value)" placeholder="354" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-            </div>
-            <div>
-                <label class="block text-[10px] uppercase text-slate-400 mb-1">Vehicle No</label>
-                <input type="text" id="input-veh" oninput="syncText('inv-veh', this.value)" placeholder="KA.05..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-            </div>
-            <div>
-                <label class="block text-[10px] uppercase text-slate-400 mb-1">E-Way Bill</label>
-                <input type="text" id="input-eway" oninput="syncText('inv-eway', this.value)" placeholder="1722..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
-            </div>
-        </div>
+     <div class="grid grid-cols-2 gap-2 mb-4">
+    <div class="col-span-2">
+        <label class="block text-[10px] uppercase text-slate-400 mb-1">Invoice No</label>
+        <input type="text" id="input-inv-no" oninput="syncText('inv-no', this.value)" placeholder="354" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm focus:border-blue-500 outline-none">
+    </div>
+    
+    <div class="col-span-2">
+        <label class="block text-[10px] uppercase text-slate-400 mb-1">Invoice Date</label>
+        <input type="date" id="input-date" onchange="formatAndSyncDate(this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white cursor-pointer focus:border-blue-500 outline-none">
+    </div>
+
+    <div>
+        <label class="block text-[10px] uppercase text-slate-400 mb-1">Vehicle No</label>
+        <input type="text" id="input-veh" oninput="syncText('inv-veh', this.value)" placeholder="KA.05..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+    </div>
+    <div>
+        <label class="block text-[10px] uppercase text-slate-400 mb-1">E-Way Bill</label>
+        <input type="text" id="input-eway" oninput="syncText('inv-eway', this.value)" placeholder="1722..." class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm">
+    </div>
+</div>
 
         <div class="space-y-3 mb-6 p-3 bg-slate-800 rounded-lg border border-slate-700">
             <label class="block text-[10px] uppercase text-blue-400 font-bold">Receiver (Auto-Fill Active)</label>
@@ -86,7 +92,10 @@
                 </div>
                 <div>
                     <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Invoice No:</span><span id="inv-no">---</span></div>
-                    <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Date:</span><span>16/04/2026</span></div>
+                    <div class="grid grid-cols-2 p-1 border-b border-black">
+    <span class="font-bold pl-1">Date:</span>
+    <span id="inv-date">---</span> 
+</div>
                     <div class="grid grid-cols-2 p-1 border-b border-black"><span class="font-bold pl-1">Vehicle No:</span><span id="inv-veh">---</span></div>
                     <div class="grid grid-cols-2 p-1"><span class="font-bold pl-1">E-Way Bill:</span><span id="inv-eway">---</span></div>
                 </div>
@@ -242,6 +251,24 @@
 
         updateDatalist();
         renderTable();
+
+        // 1. ADD THIS TO THE TOP OF YOUR SCRIPT TO SET TODAY'S DATE AUTOMATICALLY
+window.onload = function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('input-date').value = today;
+    formatAndSyncDate(today);
+    updateDatalist(); // If you have the memory logic
+    renderTable();
+};
+
+// 2. ADD THIS FUNCTION ANYWHERE IN YOUR SCRIPT
+function formatAndSyncDate(dateVal) {
+    if(!dateVal) return;
+    // Split YYYY-MM-DD and rearrange to DD/MM/YYYY
+    const [year, month, day] = dateVal.split('-');
+    const formattedDate = `${day}/${month}/${year}`;
+    document.getElementById('inv-date').innerText = formattedDate;
+}
     </script>
 </body>
 </html>
